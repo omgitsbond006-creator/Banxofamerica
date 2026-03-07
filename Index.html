@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bank of America</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --red:#e31837;--red-dark:#b8102a;--navy:#012169;--blue:#1464a5;
+  --blue-light:#e8eef7;--gray-bg:#f2f2f2;--gray-border:#e0e0e0;
+  --gray-text:#6b6b6b;--text:#1a1a1a;--white:#fff;--green:#2e7d32;
+}
+html,body{height:100%;overflow:hidden;}
+
+/* ════════════════════════════
+   ADMIN PANEL
+════════════════════════════ */
+#admin-portal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:none;align-items:center;justify-content:center;}
+#admin-portal.open{display:flex;}
+.admin-shell{width:390px;max-height:844px;height:100%;background:#0f0f13;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.admin-topbar{background:#1a1a24;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2a2a3a;flex-shrink:0;}
+.admin-topbar-title{color:#fff;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.admin-topbar-badge{background:#e31837;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:1px;}
+.admin-close-btn{background:none;border:none;color:#888;font-size:22px;cursor:pointer;line-height:1;padding:0;}
+.admin-close-btn:hover{color:#fff;}
+
+/* Admin Login */
+.admin-login-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 28px;}
+.admin-lock-icon{width:64px;height:64px;background:#1a1a24;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:20px;border:2px solid #e31837;}
+.admin-lock-icon svg{width:30px;height:30px;color:#e31837;}
+.admin-login-title{color:#fff;font-size:20px;font-weight:700;margin-bottom:6px;font-family:'Merriweather',serif;}
+.admin-login-sub{color:#888;font-size:13px;margin-bottom:30px;text-align:center;line-height:1.5;}
+.admin-field{margin-bottom:18px;width:100%;}
+.admin-field label{display:block;font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.admin-field input{width:100%;background:#1a1a24;border:1.5px solid #2a2a3a;border-radius:6px;padding:13px 14px;font-size:15px;color:#fff;font-family:'Source Sans 3',sans-serif;outline:none;transition:border-color .2s;}
+.admin-field input:focus{border-color:#e31837;}
+.admin-error{color:#e31837;font-size:12px;margin-bottom:14px;text-align:center;min-height:18px;}
+.admin-login-btn{width:100%;padding:15px;background:#e31837;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:background .2s;}
+.admin-login-btn:hover{background:#b8102a;}
+
+/* Admin Dashboard */
+.admin-dash{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.admin-nav{background:#1a1a24;display:flex;border-bottom:1px solid #2a2a3a;flex-shrink:0;}
+.admin-nav-btn{flex:1;padding:12px 4px;font-size:11px;font-weight:700;color:#666;background:none;border:none;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;text-align:center;transition:color .2s;border-bottom:2px solid transparent;}
+.admin-nav-btn.on{color:#e31837;border-bottom-color:#e31837;}
+.admin-panel{display:none;flex:1;overflow-y:auto;padding:16px;}
+.admin-panel.on{display:block;}
+.admin-section-title{font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;margin-top:6px;}
+.admin-input-group{margin-bottom:16px;}
+.admin-input-group label{display:block;font-size:12px;font-weight:600;color:#aaa;margin-bottom:6px;}
+.admin-input-group input{width:100%;background:#1a1a24;border:1.5px solid #2a2a3a;border-radius:6px;padding:11px 14px;font-size:14px;color:#fff;font-family:'Source Sans 3',sans-serif;outline:none;transition:border-color .2s;}
+.admin-input-group input:focus{border-color:#e31837;}
+.admin-save-btn{width:100%;padding:13px;background:#e31837;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'Source Sans 3',sans-serif;margin-top:6px;transition:background .2s;}
+.admin-save-btn:hover{background:#b8102a;}
+.admin-success-msg{color:#4caf50;font-size:13px;text-align:center;margin-top:10px;min-height:20px;}
+/* Transactions admin */
+.admin-tx-list{margin-bottom:16px;}
+.admin-tx-item{background:#1a1a24;border:1px solid #2a2a3a;border-radius:8px;padding:12px 14px;margin-bottom:8px;}
+.admin-tx-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.admin-tx-label{color:#ccc;font-size:13px;font-weight:600;}
+.admin-tx-del{background:none;border:1px solid #3a1a1a;color:#e31837;padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:700;}
+.admin-tx-del:hover{background:#2a0a0a;}
+.admin-tx-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.admin-tx-field input,.admin-tx-field select{width:100%;background:#0f0f13;border:1px solid #2a2a3a;border-radius:4px;padding:8px 10px;font-size:12px;color:#fff;font-family:'Source Sans 3',sans-serif;outline:none;}
+.admin-tx-field input:focus,.admin-tx-field select:focus{border-color:#e31837;}
+.admin-tx-field label{display:block;font-size:10px;color:#666;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px;}
+.admin-tx-field.full{grid-column:1/-1;}
+.admin-add-tx-btn{width:100%;padding:11px;background:#1a1a24;color:#aaa;border:1.5px dashed #2a2a3a;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Source Sans 3',sans-serif;margin-bottom:12px;transition:all .2s;}
+.admin-add-tx-btn:hover{border-color:#e31837;color:#e31837;}
+.admin-panel::-webkit-scrollbar{width:3px;}
+.admin-panel::-webkit-scrollbar-thumb{background:#2a2a3a;border-radius:2px;}
+.logo-tap-counter{} /* invisible helper */
+body{font-family:'Source Sans 3',sans-serif;background:#e8e8e8;display:flex;align-items:center;justify-content:center;}
+
+/* ── APP SHELL ── */
+#app{
+  width:390px;height:844px;background:var(--gray-bg);
+  display:flex;flex-direction:column;overflow:hidden;
+  position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+}
+
+/* ── SCREENS ── */
+.screen{display:none;flex-direction:column;height:100%;overflow:hidden;}
+.screen.active{display:flex;}
+
+/* ── SCROLLABLE BODY ── */
+.scroll-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.scroll-body::-webkit-scrollbar{width:3px;}
+.scroll-body::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px;}
+
+/* ════════════════════════════
+   LOGIN SCREEN
+════════════════════════════ */
+#screen-login{background:var(--white);justify-content:flex-start;}
+.login-hero{
+  height:160px;background:linear-gradient(135deg,#dce8f5 0%,#b8d0ea 100%);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  position:relative;overflow:hidden;
+}
+.login-hero::after{
+  content:'';position:absolute;bottom:-20px;left:-10%;width:120%;height:50px;
+  background:var(--white);transform:rotate(-2deg);
+}
+.boa-logo-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;z-index:2;}
+
+.boa-wordmark{font-family:'Merriweather',serif;font-size:11px;font-weight:700;color:var(--navy);letter-spacing:0.8px;text-transform:uppercase;}
+.boa-prepaid{font-size:9px;font-weight:600;color:var(--navy);letter-spacing:2px;text-transform:uppercase;}
+.login-body{padding:30px 28px 24px;}
+.login-title{font-family:'Merriweather',serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.login-sub{font-size:14px;color:var(--gray-text);margin-bottom:30px;line-height:1.4;}
+.field-group{position:relative;margin-bottom:22px;border-bottom:1.5px solid var(--gray-border);padding-bottom:10px;transition:border-color .2s;}
+.field-group:focus-within{border-color:var(--red);}
+.field-group label{display:block;font-size:11px;font-weight:700;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.field-group input{width:100%;border:none;outline:none;font-size:15px;font-family:'Source Sans 3',sans-serif;color:var(--text);background:transparent;padding-right:70px;}
+.field-forgot{position:absolute;right:0;top:16px;font-size:12px;font-weight:700;color:var(--blue);background:none;border:none;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;}
+.remember-row{display:flex;align-items:center;gap:10px;margin:20px 0 26px;}
+.chk{width:18px;height:18px;border:1.5px solid #aaa;border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.chk.on{border-color:var(--navy);background:var(--navy);}
+.chk.on::after{content:'✓';color:#fff;font-size:11px;font-weight:700;}
+.remember-row label{font-size:14px;color:var(--text);cursor:pointer;user-select:none;}
+.btn-primary{display:block;width:100%;padding:16px;background:var(--red);color:#fff;border:none;border-radius:4px;font-size:14px;font-weight:700;font-family:'Source Sans 3',sans-serif;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .1s;margin-bottom:22px;}
+.btn-primary:hover{background:var(--red-dark);}
+.btn-primary:active{transform:scale(.98);}
+.login-links{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.text-link{font-size:13px;font-weight:700;color:var(--blue);background:none;border:none;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+.text-link:hover{text-decoration:underline;}
+.sep{width:50px;height:1px;background:var(--gray-border);}
+
+/* ════════════════════════════
+   MAIN APP (post-login)
+════════════════════════════ */
+/* Top Header */
+.top-bar{
+  background:var(--white);display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px 8px;border-bottom:1px solid var(--gray-border);flex-shrink:0;
+  position:relative;z-index:50;
+}
+.top-menu{display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px;}
+.hamburger{display:flex;flex-direction:column;gap:4px;}
+.hamburger span{display:block;width:20px;height:2px;background:var(--navy);border-radius:2px;transition:all .3s;}
+.menu-lbl{font-size:11px;color:var(--navy);font-weight:700;}
+.top-icons{display:flex;align-items:center;gap:14px;}
+.top-icon{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:2px 4px;}
+.top-icon svg{width:22px;height:22px;color:var(--navy);}
+.top-icon span{font-size:10px;color:var(--navy);font-weight:600;}
+.ico-badge{position:absolute;top:-3px;right:-4px;background:var(--navy);color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;padding:0 2px;}
+
+/* Tab Nav */
+.tab-row{background:var(--white);display:flex;border-bottom:2px solid var(--gray-border);flex-shrink:0;}
+.tab-btn{flex:1;padding:14px 0;font-size:14px;font-weight:600;color:var(--gray-text);background:none;border:none;cursor:pointer;position:relative;transition:color .2s;}
+.tab-btn.on{color:var(--red);}
+.tab-btn.on::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--red);}
+
+/* Search */
+.search-bar{background:var(--white);padding:10px 14px;border-bottom:1px solid var(--gray-border);flex-shrink:0;}
+.search-inner{display:flex;align-items:center;background:#f0f0f0;border-radius:22px;padding:8px 10px;gap:8px;}
+.search-inner svg{width:16px;height:16px;color:#999;flex-shrink:0;}
+.search-inner input{flex:1;border:none;background:transparent;font-size:14px;font-family:'Source Sans 3',sans-serif;color:var(--text);outline:none;}
+.search-inner input::placeholder{color:#aaa;}
+.boa-btn{position:relative;flex-shrink:0;}
+.boa-btn-inner{width:38px;height:38px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;}
+.boa-btn-inner svg{width:17px;height:17px;color:#fff;}
+.boa-notif{position:absolute;top:-4px;right:-4px;background:var(--navy);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;}
+
+/* Bottom Nav */
+.bottom-nav{background:var(--white);border-top:1px solid var(--gray-border);display:flex;flex-shrink:0;padding:6px 0 10px;}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 2px;transition:color .15s;border:none;background:none;}
+.bnav-item svg{width:22px;height:22px;color:#888;}
+.bnav-item span{font-size:10px;color:#888;font-weight:600;text-align:center;line-height:1.2;}
+.bnav-item.on svg{color:var(--blue);}
+.bnav-item.on span{color:var(--blue);}
+
+/* ── CONTENT PANELS ── */
+.tab-panel{display:none;}
+.tab-panel.on{display:block;}
+
+/* ── ACCOUNTS TAB ── */
+.biz-card{background:var(--white);margin:12px 12px 0;border-radius:10px;box-shadow:0 1px 8px rgba(0,0,0,0.08);overflow:hidden;}
+.biz-top{padding:16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eee;cursor:pointer;transition:background .15s;}
+.biz-top:hover{background:#fafafa;}
+.biz-name{font-family:'Merriweather',serif;font-size:18px;font-weight:800;}
+.biz-sub{padding:14px 16px;display:flex;align-items:flex-start;justify-content:space-between;cursor:pointer;transition:background .15s;}
+.biz-sub:hover{background:#fafafa;}
+.biz-sub-txt{font-size:13px;color:var(--gray-text);line-height:1.5;}
+.biz-sub-txt .lnk{color:var(--blue);font-weight:600;cursor:pointer;}
+
+.divider-bar{height:5px;background:linear-gradient(to right,var(--red) 40%,var(--navy) 40%);margin-top:14px;}
+.sec-card{background:var(--white);margin:0 12px;border-radius:0 0 8px 8px;box-shadow:0 2px 6px rgba(0,0,0,0.06);overflow:hidden;}
+.sec-head{padding:16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .15s;}
+.sec-head:hover{background:#fafafa;}
+.sec-title{font-size:17px;font-weight:800;}
+.caret{font-size:16px;color:#999;transition:transform .25s;display:inline-block;line-height:1;}
+.caret.down{transform:rotate(180deg);}
+.sec-body{}
+.sec-body.hide{display:none;}
+
+.boa-row{padding:10px 16px 6px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #eee;}
+.boa-lbl{font-size:11px;font-weight:700;color:var(--gray-text);letter-spacing:.5px;}
+
+
+.acct-row{padding:14px 16px;border-top:1px solid #eee;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .15s;}
+.acct-row:hover{background:#fafafa;}
+.acct-row:active{background:#f0f0f0;}
+.acct-name{font-size:15px;font-weight:500;line-height:1.35;}
+.acct-right{display:flex;align-items:center;gap:8px;}
+.acct-amt{font-size:16px;font-weight:400;white-space:nowrap;}
+.chev{color:#aaa;font-size:18px;}
+
+/* Net Worth row */
+.nw-row{background:var(--white);margin:0 12px;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,0.07);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-top:14px;transition:background .15s;}
+.nw-row:hover{background:#fafafa;}
+.nw-label{font-size:15px;font-weight:700;}
+.nw-amount{font-size:17px;font-weight:700;}
+
+/* ── DASHBOARD TAB ── */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;}
+.d-card{background:var(--white);border-radius:8px;padding:14px;box-shadow:0 1px 5px rgba(0,0,0,0.07);cursor:pointer;transition:box-shadow .2s,transform .15s;min-height:110px;display:flex;flex-direction:column;justify-content:space-between;}
+.d-card:hover{box-shadow:0 4px 14px rgba(0,0,0,0.12);transform:translateY(-1px);}
+.d-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+.d-icon svg{width:20px;height:20px;}
+.ic-red{background:#fde8eb;}.ic-blue{background:var(--blue-light);}.ic-green{background:#e6f4ea;}
+.ic-navy{background:#e8eef7;}.ic-orange{background:#fff3e6;}.ic-purple{background:#f3eefb;}
+.d-lbl{font-size:11px;color:var(--gray-text);line-height:1.3;margin-bottom:2px;}
+.d-amt{font-size:18px;font-weight:700;}
+.d-sub{font-size:11px;color:var(--gray-text);margin-top:2px;}
+.d-sub.over{color:var(--red);}
+.zelle-txt{font-size:20px;font-weight:800;color:#6d1ed4;font-style:italic;margin-bottom:4px;}
+.pend-badge{display:inline-block;background:var(--red);color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:700;}
+.fico-num{font-size:26px;font-weight:700;color:var(--navy);}
+.fico-sub{font-size:10px;color:var(--gray-text);}
+.customize-btn{display:block;width:calc(100% - 28px);margin:4px 14px 20px;padding:15px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:background .2s;}
+.customize-btn:hover{background:#01317a;}
+
+/* ── PAY & TRANSFER SCREEN ── */
+.pt-header{background:var(--white);padding:14px 16px;border-bottom:1px solid var(--gray-border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.back-btn{background:none;border:none;cursor:pointer;color:var(--blue);font-size:24px;padding:0;line-height:1;}
+.pt-title{font-size:17px;font-weight:700;}
+.pt-subtitle{font-size:12px;color:var(--gray-text);}
+.pt-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px;}
+.pt-card{background:var(--white);border-radius:10px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.07);cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;transition:all .2s;}
+.pt-card:hover{box-shadow:0 4px 14px rgba(0,0,0,0.12);transform:translateY(-2px);}
+.pt-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.pt-icon svg{width:26px;height:26px;}
+.pt-name{font-size:14px;font-weight:700;color:var(--text);}
+.pt-desc{font-size:11px;color:var(--gray-text);line-height:1.3;}
+.pt-section-title{font-size:13px;font-weight:700;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;padding:16px 16px 8px;}
+.recent-transfer{background:var(--white);margin:0 16px 10px;border-radius:8px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s;}
+.recent-transfer:hover{background:#fafafa;}
+.rt-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;}
+.rt-info{flex:1;}
+.rt-name{font-size:14px;font-weight:600;}
+.rt-date{font-size:12px;color:var(--gray-text);}
+.rt-amount{font-size:15px;font-weight:700;}
+.rt-amount.out{color:var(--red);}
+.rt-amount.in{color:var(--green);}
+
+/* ── TRANSFER FORM ── */
+.form-screen-body{padding:16px;}
+.form-field{margin-bottom:18px;}
+.form-field label{display:block;font-size:12px;font-weight:700;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.form-field input,.form-field select{width:100%;border:1.5px solid var(--gray-border);border-radius:6px;padding:12px 14px;font-size:15px;font-family:'Source Sans 3',sans-serif;color:var(--text);outline:none;transition:border-color .2s;background:var(--white);}
+.form-field input:focus,.form-field select:focus{border-color:var(--blue);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.confirm-btn{width:100%;padding:16px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'Source Sans 3',sans-serif;margin-top:8px;transition:background .2s;}
+.confirm-btn:hover{background:var(--red-dark);}
+
+/* ── DEPOSIT SCREEN ── */
+.deposit-hero{background:linear-gradient(135deg,var(--navy) 0%,#023591 100%);padding:28px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;}
+.deposit-hero svg{width:56px;height:56px;color:rgba(255,255,255,.8);}
+.deposit-hero h2{color:#fff;font-size:20px;font-weight:700;}
+.deposit-hero p{color:rgba(255,255,255,.75);font-size:14px;line-height:1.5;}
+.deposit-steps{padding:20px 16px;}
+.step-card{background:var(--white);border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 1px 5px rgba(0,0,0,0.07);display:flex;align-items:flex-start;gap:14px;}
+.step-num{width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-info h4{font-size:14px;font-weight:700;margin-bottom:4px;}
+.step-info p{font-size:13px;color:var(--gray-text);line-height:1.4;}
+.deposit-btns{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px;}
+.dep-btn-primary{padding:15px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:background .2s;}
+.dep-btn-primary:hover{background:var(--red-dark);}
+.dep-btn-sec{padding:14px;background:var(--white);color:var(--navy);border:2px solid var(--navy);border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Source Sans 3',sans-serif;}
+
+/* ── SERVICES SCREEN ── */
+.services-list{padding:12px 12px;}
+.svc-section{margin-bottom:14px;}
+.svc-section-title{font-size:12px;font-weight:700;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;padding:10px 6px 6px;}
+.svc-card{background:var(--white);border-radius:10px;box-shadow:0 1px 5px rgba(0,0,0,0.06);overflow:hidden;margin-bottom:2px;}
+.svc-row{padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:background .15s;border-bottom:1px solid #f5f5f5;}
+.svc-row:last-child{border-bottom:none;}
+.svc-row:hover{background:#fafafa;}
+.svc-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.svc-ico svg{width:20px;height:20px;}
+.svc-info{flex:1;}
+.svc-name{font-size:14px;font-weight:600;}
+.svc-desc{font-size:12px;color:var(--gray-text);margin-top:2px;}
+
+/* ── ACCOUNT DETAIL SCREEN ── */
+.acct-detail-header{background:var(--navy);padding:20px 16px 24px;flex-shrink:0;}
+.adh-top{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.adh-back{background:none;border:none;cursor:pointer;color:#fff;font-size:26px;padding:0;line-height:1;}
+.adh-name{color:#fff;font-size:16px;font-weight:700;}
+.adh-num{color:rgba(255,255,255,.7);font-size:12px;}
+.adh-balance-lbl{color:rgba(255,255,255,.7);font-size:12px;margin-bottom:4px;}
+.adh-balance{color:#fff;font-size:32px;font-weight:700;}
+.adh-avail{color:rgba(255,255,255,.75);font-size:13px;margin-top:4px;}
+.acct-quick-btns{background:var(--white);display:flex;border-bottom:1px solid var(--gray-border);flex-shrink:0;}
+.aqb{flex:1;padding:14px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;border-right:1px solid var(--gray-border);background:none;border-top:none;border-bottom:none;}
+.aqb:last-child{border-right:none;}
+.aqb svg{width:20px;height:20px;color:var(--blue);}
+.aqb span{font-size:11px;color:var(--blue);font-weight:600;text-align:center;line-height:1.2;}
+.tx-filter{background:var(--white);padding:10px 16px;display:flex;gap:8px;border-bottom:1px solid var(--gray-border);flex-shrink:0;overflow-x:auto;}
+.tx-filter::-webkit-scrollbar{display:none;}
+.filter-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;border:1.5px solid var(--gray-border);background:var(--white);color:var(--gray-text);transition:all .2s;}
+.filter-chip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.tx-month{padding:10px 16px 4px;font-size:12px;font-weight:700;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;background:var(--gray-bg);}
+.tx-row{background:var(--white);padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #f0f0f0;cursor:pointer;transition:background .15s;}
+.tx-row:hover{background:#fafafa;}
+.tx-ico{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+.tx-desc{flex:1;}
+.tx-name{font-size:14px;font-weight:600;}
+.tx-date{font-size:12px;color:var(--gray-text);}
+.tx-right{text-align:right;}
+.tx-amt{font-size:15px;font-weight:700;}
+.tx-amt.debit{color:var(--text);}
+.tx-amt.credit{color:var(--green);}
+.tx-bal{font-size:11px;color:var(--gray-text);}
+
+/* ── INBOX SCREEN ── */
+.inbox-list{padding:0;}
+.inbox-item{background:var(--white);padding:16px;border-bottom:1px solid #eee;display:flex;gap:12px;cursor:pointer;transition:background .15s;}
+.inbox-item:hover{background:#fafafa;}
+.inbox-item.unread{background:#f0f4fa;}
+.inbox-dot{width:8px;height:8px;border-radius:50%;background:var(--navy);margin-top:5px;flex-shrink:0;}
+.inbox-dot.read{background:transparent;}
+.inbox-info{flex:1;}
+.inbox-from{font-size:13px;font-weight:700;margin-bottom:3px;}
+.inbox-subject{font-size:13px;color:var(--text);margin-bottom:3px;}
+.inbox-preview{font-size:12px;color:var(--gray-text);line-height:1.3;}
+.inbox-meta{display:flex;justify-content:space-between;align-items:flex-start;}
+.inbox-date{font-size:11px;color:var(--gray-text);white-space:nowrap;margin-left:8px;}
+
+/* ── MENU DRAWER ── */
+.drawer-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;opacity:0;transition:opacity .3s;}
+.drawer-overlay.open{display:flex;opacity:1;}
+.drawer{width:80%;max-width:310px;height:100%;background:var(--white);display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .3s;overflow-y:auto;}
+.drawer-overlay.open .drawer{transform:translateX(0);}
+.drawer-header{background:var(--navy);padding:28px 20px 20px;}
+.drawer-greeting{color:#fff;font-size:20px;font-weight:700;margin-bottom:4px;}
+.drawer-sub{color:rgba(255,255,255,.75);font-size:13px;}
+.drawer-section{padding:8px 0;}
+.drawer-section-title{font-size:11px;font-weight:700;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;padding:8px 20px 4px;}
+.drawer-item{padding:13px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:background .15s;}
+.drawer-item:hover{background:#f5f5f5;}
+.drawer-item svg{width:20px;height:20px;color:var(--navy);flex-shrink:0;}
+.drawer-item span{font-size:15px;color:var(--text);}
+.drawer-divider{height:1px;background:#eee;margin:4px 0;}
+.drawer-close{position:absolute;top:20px;right:20px;background:none;border:none;font-size:28px;color:#fff;cursor:pointer;z-index:201;line-height:1;}
+
+/* ── MODAL/TOAST ── */
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.modal-sheet{background:var(--white);width:100%;border-radius:16px 16px 0 0;padding:24px;max-height:80%;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);}
+.modal-overlay.open .modal-sheet{transform:translateY(0);}
+.modal-handle{width:40px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 20px;}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:6px;}
+.modal-sub{font-size:13px;color:var(--gray-text);margin-bottom:20px;line-height:1.5;}
+.modal-close{display:block;width:100%;padding:14px;background:#f0f0f0;color:var(--text);border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Source Sans 3',sans-serif;margin-top:10px;}
+.modal-confirm{display:block;width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Source Sans 3',sans-serif;letter-spacing:.5px;margin-bottom:10px;}
+
+.toast{position:absolute;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#222;color:#fff;padding:10px 22px;border-radius:24px;font-size:13px;opacity:0;transition:all .3s;z-index:400;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── SUCCESS SCREEN ── */
+.success-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 28px;text-align:center;gap:16px;flex:1;}
+.success-icon{width:72px;height:72px;border-radius:50%;background:#e6f4ea;display:flex;align-items:center;justify-content:center;}
+.success-icon svg{width:38px;height:38px;color:var(--green);}
+.success-title{font-size:22px;font-weight:700;font-family:'Merriweather',serif;}
+.success-sub{font-size:14px;color:var(--gray-text);line-height:1.6;}
+.success-detail{background:var(--gray-bg);border-radius:8px;padding:16px;width:100%;text-align:left;}
+.success-detail-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px;border-bottom:1px solid var(--gray-border);}
+.success-detail-row:last-child{border-bottom:none;}
+.success-detail-row .key{color:var(--gray-text);}
+.success-detail-row .val{font-weight:600;}
+.done-btn{width:100%;padding:15px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Source Sans 3',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+
+/* ── ZELLE SCREEN ── */
+.zelle-header{background:linear-gradient(135deg,#5c00be,#8a1fd4);padding:24px 16px 20px;}
+.zelle-logo-big{font-size:32px;font-weight:800;color:#fff;font-style:italic;margin-bottom:6px;}
+.zelle-sub-txt{color:rgba(255,255,255,.8);font-size:13px;}
+.zelle-actions{display:flex;gap:12px;padding:16px;}
+.zelle-btn{flex:1;padding:14px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:all .2s;}
+.zelle-btn.send{background:#6d1ed4;color:#fff;}
+.zelle-btn.request{background:#f3eefb;color:#6d1ed4;}
+.pending-section{padding:0 16px;}
+.pending-title{font-size:13px;font-weight:700;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px;padding:8px 0;}
+.pending-item{background:var(--white);border-radius:8px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.pi-ava{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#fff;flex-shrink:0;}
+.pi-info{flex:1;}
+.pi-name{font-size:14px;font-weight:600;}
+.pi-note{font-size:12px;color:var(--gray-text);}
+.pi-btns{display:flex;gap:8px;}
+.pi-accept{padding:7px 14px;background:#6d1ed4;color:#fff;border:none;border-radius:16px;font-size:12px;font-weight:700;cursor:pointer;}
+.pi-decline{padding:7px 14px;background:#f0f0f0;color:var(--text);border:none;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;}
+
+/* Utility */
+.gap{height:14px;background:var(--gray-bg);}
+.mini-gap{height:8px;background:var(--gray-bg);}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.screen.active .scroll-body{animation:fadeIn .2s ease;}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ════════════ LOGIN SCREEN ════════════ -->
+<div id="screen-login" class="screen active">
+  <div class="login-hero">
+    <div class="boa-logo-wrap" id="boa-logo-trigger" onclick="adminLogoTap()" style="cursor:default;user-select:none;">
+      <img src="data:image/png;base64,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" style="width:80px;height:80px;object-fit:contain;" alt="Bank of America"/>
+      Bank Of America
+      <div class="boa-prepaid">Prepaid</div>
+      
+    </div>
+  </div>
+  <div class="login-body">
+    <h1 class="login-title">Sign In</h1>
+    <p class="login-sub">Use your website username and password.</p>
+    <div class="field-group">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="" autocomplete="username"/>
+      <button class="field-forgot" onclick="showModal('forgot')">FORGOT</button>
+    </div>
+    <div class="field-group">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="" autocomplete="current-password"/>
+      <button class="field-forgot" onclick="showModal('forgot')">FORGOT</button>
+    </div>
+    <div class="remember-row">
+      <div class="chk" id="remember-chk" onclick="this.classList.toggle('on')"></div>
+      <label onclick="document.getElementById('remember-chk').classList.toggle('on')">Remember me</label>
+    </div>
+    <button class="btn-primary" onclick="doLogin()">SIGN IN →</button>
+    <div id="login-error-msg" style="color:#e31837;font-size:13px;text-align:center;margin-top:-12px;margin-bottom:10px;min-height:18px;font-weight:600;"></div>
+    <div class="login-links">
+      <button class="text-link" onclick="showModal('activate')">ACTIVATE CARD ⊡</button>
+      <div class="sep"></div>
+      <button class="text-link" onclick="showModal('register')">REGISTER ⊙</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ MAIN SCREEN ════════════ -->
+<div id="screen-main" class="screen">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <button class="top-menu" onclick="openDrawer()">
+      <div class="hamburger"><span></span><span></span><span></span></div>
+      <span class="menu-lbl">Menu</span>
+    </button>
+    <div class="top-icons">
+      <div class="top-icon" onclick="goScreen('inbox')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span>Inbox</span>
+        <div class="ico-badge">9</div>
+      </div>
+      <div class="top-icon" onclick="showModal('products')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="7" height="7"/><rect x="15" y="3" width="7" height="7"/><rect x="2" y="14" width="7" height="7"/><rect x="15" y="14" width="7" height="7"/></svg>
+        <span>Products</span>
+        <div class="ico-badge">9</div>
+      </div>
+      <div class="top-icon" onclick="showModal('logout')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Log Out</span>
+      </div>
+    </div>
+  </div>
+  <!-- Tabs -->
+  <div class="tab-row">
+    <button class="tab-btn on" id="tab-accts" onclick="switchTab('accts')">Accounts</button>
+    <button class="tab-btn" id="tab-dash" onclick="switchTab('dash')">Dashboard</button>
+  </div>
+  <!-- Search -->
+  <div class="search-bar">
+    <div class="search-inner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="How can we help?"/>
+      <div class="boa-btn">
+        <button class="boa-btn-inner" onclick="showModal('assistant')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="boa-notif">4</div>
+      </div>
+    </div>
+  </div>
+  <!-- Scrollable content -->
+  <div class="scroll-body" style="flex:1;overflow-y:auto;">
+    <!-- ACCOUNTS PANEL -->
+    <div class="tab-panel on" id="panel-accts">
+      <div class="biz-card">
+        <div class="biz-top" onclick="showModal('jenn')">
+          <span class="biz-name">Hello, Lahi</span>
+          <span class="chev">›</span>
+        </div>
+        <div class="biz-sub" onclick="showModal('rewards-summary')">
+          <span class="biz-sub-txt">You've been enjoying Preferred Rewards for Business since Mar 2018. <span class="lnk">My Summary</span></span>
+          <span class="chev" style="margin-top:2px;margin-left:8px;">›</span>
+        </div>
+      </div>
+      <!-- Banking -->
+      <div class="divider-bar"></div>
+      <div class="sec-card">
+        <div class="sec-head" onclick="toggleSec('banking')">
+          <span class="sec-title">Banking</span>
+          <span class="caret" id="caret-banking">∧</span>
+        </div>
+        <div class="sec-body" id="body-banking">
+          <div class="boa-row">
+            <span class="boa-lbl">BANK OF AMERICA</span>
+            <img src="data:image/png;base64,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" style="width:24px;height:24px;object-fit:contain;" alt="BofA"/>
+          </div>
+          <div class="acct-row" onclick="goAcctDetail('checking')">
+            <div class="acct-name">Business Adv<br>Checking - 3432</div>
+            <div class="acct-right"><span class="acct-amt">$57,213.00</span><span class="chev">›</span></div>
+          </div>
+          <div class="acct-row" onclick="goAcctDetail('savings')">
+            <div class="acct-name">Business Adv<br>Savings - 0193</div>
+            <div class="acct-right"><span class="acct-amt">$10,900.00</span><span class="chev">›</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Credit Cards -->
+      <div class="divider-bar"></div>
+      <div class="sec-card">
+        <div class="sec-head" onclick="toggleSec('credit')">
+          <span class="sec-title">Credit Cards</span>
+          <span class="caret" id="caret-credit">∧</span>
+        </div>
+        <div class="sec-body" id="body-credit">
+          <div class="boa-row">
+            <span class="boa-lbl">BANK OF AMERICA</span>
+            <img src="data:image/png;base64,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" style="width:24px;height:24px;object-fit:contain;" alt="BofA"/>
+          </div>
+          <div class="acct-row" onclick="goAcctDetail('credit')">
+            <div class="acct-name">CORP Account - Business Advantage<br>Cash Rewards - 9832</div>
+            <div class="acct-right"><span class="acct-amt">$982.53</span><span class="chev">›</span></div>
+          </div>
+          <div class="acct-row" onclick="goAcctDetail('bankameri')">
+            <div class="acct-name">BankAmeriCard<br>Rewards - 00001</div>
+            <div class="acct-right"><span class="acct-amt">$2,543.21</span><span class="chev">›</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Investments -->
+      <div class="divider-bar"></div>
+      <div class="sec-card">
+        <div class="sec-head" onclick="toggleSec('invest')">
+          <span class="sec-title">Investments</span>
+          <span class="caret" id="caret-invest">∧</span>
+        </div>
+        <div class="sec-body" id="body-invest">
+          <div style="background:var(--navy);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="color:rgba(255,255,255,.7);font-size:11px;font-weight:700;letter-spacing:.5px;">MERRILL</div>
+              <div style="color:#fff;font-size:17px;font-weight:700;margin-top:2px;">$1,922,350.00</div>
+            </div>
+            <button onclick="goAcctDetail('merrill')" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:16px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">View All</button>
+          </div>
+          <div class="acct-row" onclick="goAcctDetail('401k')">
+            <div class="acct-name">401(k) Plan¹</div>
+            <div class="acct-right"><span class="acct-amt">$85,000.00</span><span class="chev">›</span></div>
+          </div>
+          <div class="acct-row" onclick="goAcctDetail('equity')">
+            <div class="acct-name">Equity Plan²</div>
+            <div class="acct-right"><span class="acct-amt">$12,000.00</span><span class="chev">›</span></div>
+          </div>
+          <div class="acct-row" onclick="goAcctDetail('hsa')">
+            <div class="acct-name">HSA Cash Account³</div>
+            <div class="acct-right"><span class="acct-amt">$1,000.00</span><span class="chev">›</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Net Worth -->
+      <div class="nw-row" onclick="showModal('networth')">
+        <span class="nw-label">Net Worth¹</span>
+        <div style="display:flex;align-items:center;gap:10px;"><span class="nw-amount">$1,949,210.00</span><span class="chev">›</span></div>
+      </div>
+      <div style="height:24px;background:var(--gray-bg);"></div>
+    </div>
+
+    <!-- DASHBOARD PANEL -->
+    <div class="tab-panel" id="panel-dash">
+      <div class="dash-grid">
+        <div class="d-card" onclick="goAcctDetail('checking')">
+          <div><div class="d-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="#e31837" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><div class="d-lbl">Checking Account -3432</div></div>
+          <div><div class="d-amt">$768.33</div><div class="d-sub">Available Balance</div></div>
+        </div>
+        <div class="d-card" onclick="goAcctDetail('credit')">
+          <div><div class="d-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="#e31837" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div class="d-lbl">Cash Rewards ...9832</div></div>
+          <div><div class="d-amt">$982.53</div><div class="d-sub">Current Balance</div></div>
+        </div>
+        <div class="d-card" onclick="goAcctDetail('bankameri')">
+          <div><div class="d-icon ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="#1464a5" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div class="d-lbl">BankAmeriCard ...00001</div></div>
+          <div><div class="d-amt">$2,543.21</div><div class="d-sub">Current Balance</div></div>
+        </div>
+        <div class="d-card" onclick="showModal('spending')">
+          <div><div class="d-icon ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="d-lbl">December Spending</div></div>
+          <div><div class="d-amt">$2,400.00</div><div class="d-sub over">3 Categories Over Budget</div></div>
+        </div>
+        <div class="d-card" onclick="goScreen('zelle')">
+          <div><div class="zelle-txt">Zelle®</div><div class="d-lbl">Send or Request Money</div></div>
+          <div><span class="pend-badge">3</span><div class="d-sub" style="margin-top:4px;">Pending Requests</div></div>
+        </div>
+        <div class="d-card" onclick="showModal('fico')">
+          <div><div class="d-icon ic-navy"><svg viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg></div><div class="d-lbl">My FICO® Score</div></div>
+          <div><div class="fico-num">734</div><div class="fico-sub">As of 12/01/2024</div></div>
+        </div>
+        <div class="d-card" onclick="showModal('lifeplan')">
+          <div><div class="d-icon ic-orange"><svg viewBox="0 0 24 24" fill="none" stroke="#e65100" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="d-lbl">Life Plan®</div></div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--blue);">Turn dreams into action</div></div>
+        </div>
+        <div class="d-card" onclick="showModal('rewards-dash')">
+          <div><div class="d-icon ic-purple"><svg viewBox="0 0 24 24" fill="none" stroke="#6d1ed4" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="d-lbl">My Rewards</div></div>
+          <div><div class="d-amt" style="font-size:15px;color:var(--navy);">48,200 pts</div><div class="d-sub">Platinum Honors</div></div>
+        </div>
+      </div>
+      <button class="customize-btn" onclick="showModal('customize')">Customize My Dashboard</button>
+    </div>
+  </div>
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="bnav-item on" id="bnav-accounts" onclick="setBnav('accounts');goScreen('main')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>Accounts</span>
+    </button>
+    <button class="bnav-item" id="bnav-pay" onclick="setBnav('pay');goScreen('pay-transfer')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      <span>Pay & Transfer</span>
+    </button>
+    <button class="bnav-item" id="bnav-deposit" onclick="setBnav('deposit');goScreen('deposit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><polyline points="12 14 12 19"/><polyline points="9 17 12 20 15 17"/></svg>
+      <span>Deposit Checks</span>
+    </button>
+    <button class="bnav-item" id="bnav-services" onclick="setBnav('services');goScreen('services')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Services</span>
+    </button>
+  </div>
+</div>
+
+<!-- ════════════ PAY & TRANSFER SCREEN ════════════ -->
+<div id="screen-pay-transfer" class="screen">
+  <div class="pt-header">
+    <button class="back-btn" onclick="goBack()">‹</button>
+    <div><div class="pt-title">Pay & Transfer</div><div class="pt-subtitle">Move money quickly and securely</div></div>
+  </div>
+  <div class="scroll-body">
+    <div class="pt-grid">
+      <div class="pt-card" onclick="goScreen('transfer-form')">
+        <div class="pt-icon ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="#1464a5" stroke-width="2" width="26" height="26"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+        <div class="pt-name">Transfer</div>
+        <div class="pt-desc">Between my accounts</div>
+      </div>
+      <div class="pt-card" onclick="goScreen('zelle')">
+        <div class="pt-icon ic-purple" style="background:#f3eefb;"><svg viewBox="0 0 24 24" fill="none" stroke="#6d1ed4" stroke-width="2" width="26" height="26"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="8" x2="12" y2="16"/></svg></div>
+        <div class="pt-name">Zelle®</div>
+        <div class="pt-desc">Send or receive</div>
+      </div>
+      <div class="pt-card" onclick="goScreen('pay-bills')">
+        <div class="pt-icon" style="background:#e6f4ea;"><svg viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" width="26" height="26"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg></div>
+        <div class="pt-name">Pay Bills</div>
+        <div class="pt-desc">Pay now or schedule</div>
+      </div>
+      <div class="pt-card" onclick="showModal('wire')">
+        <div class="pt-icon ic-navy"><svg viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="2" width="26" height="26"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <div class="pt-name">Wire</div>
+        <div class="pt-desc">U.S. or international</div>
+      </div>
+      <div class="pt-card" onclick="showModal('autopay')">
+        <div class="pt-icon ic-orange" style="background:#fff3e6;"><svg viewBox="0 0 24 24" fill="none" stroke="#e65100" stroke-width="2" width="26" height="26"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
+        <div class="pt-name">AutoPay</div>
+        <div class="pt-desc">Set up automatic payments</div>
+      </div>
+      <div class="pt-card" onclick="showModal('external')">
+        <div class="pt-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="#e31837" stroke-width="2" width="26" height="26"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+        <div class="pt-name">External Transfer</div>
+        <div class="pt-desc">Other banks</div>
+      </div>
+    </div>
+    <div class="pt-section-title">Recent Transfers</div>
+    <div class="recent-transfer" onclick="showModal('tx-detail-1')">
+      <div class="rt-avatar" style="background:#e65100;">MJ</div>
+      <div class="rt-info"><div class="rt-name">Mike Johnson</div><div class="rt-date">Today, 2:41 PM · Zelle</div></div>
+      <span class="rt-amount out">-$250.00</span>
+    </div>
+    <div class="recent-transfer" onclick="showModal('tx-detail-2')">
+      <div class="rt-avatar" style="background:#2e7d32;">SA</div>
+      <div class="rt-info"><div class="rt-name">Sarah Anderson</div><div class="rt-date">Yesterday · Zelle</div></div>
+      <span class="rt-amount in">+$125.00</span>
+    </div>
+    <div class="recent-transfer" onclick="showModal('tx-detail-3')">
+      <div class="rt-avatar" style="background:#1464a5;">AT</div>
+      <div class="rt-info"><div class="rt-name">Acct Transfer – Savings</div><div class="rt-date">Dec 28 · Internal Transfer</div></div>
+      <span class="rt-amount out">-$1,000.00</span>
+    </div>
+    <div class="recent-transfer" onclick="showModal('tx-detail-4')">
+      <div class="rt-avatar" style="background:#6d1ed4;">DL</div>
+      <div class="rt-info"><div class="rt-name">David Liu</div><div class="rt-date">Dec 25 · Zelle</div></div>
+      <span class="rt-amount in">+$85.00</span>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+  <div class="bottom-nav">
+    <button class="bnav-item" onclick="setBnav('accounts');goScreen('main')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Accounts</span></button>
+    <button class="bnav-item on" onclick="setBnav('pay');goScreen('pay-transfer')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>Pay & Transfer</span></button>
+    <button class="bnav-item" onclick="setBnav('deposit');goScreen('deposit')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><polyline points="12 14 12 19"/><polyline points="9 17 12 20 15 17"/></svg><span>Deposit Checks</span></button>
+    <button class="bnav-item" onclick="setBnav('services');goScreen('services')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Services</span></button>
+  </div>
+</div>
+
+<!-- ════════════ TRANSFER FORM ════════════ -->
+<div id="screen-transfer-form" class="screen">
+  <div class="pt-header">
+    <button class="back-btn" onclick="goScreen('pay-transfer')">‹</button>
+    <div><div class="pt-title">Transfer Funds</div><div class="pt-subtitle">Between your accounts</div></div>
+  </div>
+  <div class="scroll-body">
+    <div class="form-screen-body">
+      <div class="form-field">
+        <label>From Account</label>
+        <select>
+          <option>Business Adv Checking - 3432 ($57,213.00)</option>
+          <option>Business Adv Savings - 0193 ($10,900.00)</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>To Account</label>
+        <select>
+          <option>Business Adv Savings - 0193 ($10,900.00)</option>
+          <option>Business Adv Checking - 3432 ($57,213.00)</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Amount</label>
+        <input type="number" placeholder="$0.00" id="transfer-amount"/>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Transfer Date</label>
+          <input type="date" id="transfer-date"/>
+        </div>
+        <div class="form-field">
+          <label>Frequency</label>
+          <select><option>One time</option><option>Weekly</option><option>Monthly</option></select>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Memo (optional)</label>
+        <input type="text" placeholder="Add a note"/>
+      </div>
+      <button class="confirm-btn" onclick="doTransfer()">Review Transfer →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ PAY BILLS ════════════ -->
+<div id="screen-pay-bills" class="screen">
+  <div class="pt-header">
+    <button class="back-btn" onclick="goScreen('pay-transfer')">‹</button>
+    <div><div class="pt-title">Pay Bills</div><div class="pt-subtitle">Manage your payments</div></div>
+  </div>
+  <div class="scroll-body">
+    <div class="pt-section-title">Upcoming Bills</div>
+    <div class="recent-transfer" onclick="showModal('bill-pay')">
+      <div class="rt-avatar" style="background:#e65100;font-size:13px;">⚡</div>
+      <div class="rt-info"><div class="rt-name">Energy Bill</div><div class="rt-date">Due Aug 1 · $128.24</div></div>
+      <button onclick="event.stopPropagation();showModal('bill-pay')" style="padding:7px 14px;background:var(--red);color:#fff;border:none;border-radius:16px;font-size:12px;font-weight:700;cursor:pointer;">PAY</button>
+    </div>
+    <div class="recent-transfer" onclick="showModal('bill-pay-2')">
+      <div class="rt-avatar" style="background:#1464a5;font-size:13px;">💳</div>
+      <div class="rt-info"><div class="rt-name">Cash Rewards Card</div><div class="rt-date">Due Aug 16 · Min $15.00</div></div>
+      <button onclick="event.stopPropagation();showModal('bill-pay-2')" style="padding:7px 14px;background:var(--red);color:#fff;border:none;border-radius:16px;font-size:12px;font-weight:700;cursor:pointer;">PAY</button>
+    </div>
+    <div class="recent-transfer" onclick="showModal('bill-pay-3')">
+      <div class="rt-avatar" style="background:#2e7d32;font-size:13px;">🌐</div>
+      <div class="rt-info"><div class="rt-name">Internet Service</div><div class="rt-date">Due Aug 20 · $89.99</div></div>
+      <button onclick="event.stopPropagation();showModal('bill-pay-3')" style="padding:7px 14px;background:var(--red);color:#fff;border:none;border-radius:16px;font-size:12px;font-weight:700;cursor:pointer;">PAY</button>
+    </div>
+    <div class="pt-section-title">Payees</div>
+    <div class="recent-transfer" onclick="showModal('add-payee')">
+      <div class="rt-avatar" style="background:var(--navy);">+</div>
+      <div class="rt-info"><div class="rt-name">Add New Payee</div><div class="rt-date">Set up a new biller</div></div>
+      <span class="chev">›</span>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- ════════════ DEPOSIT SCREEN ════════════ -->
+<div id="screen-deposit" class="screen">
+  <div class="pt-header">
+    <button class="back-btn" onclick="goBack()">‹</button>
+    <div><div class="pt-title">Deposit Checks</div></div>
+  </div>
+  <div class="scroll-body">
+    <div class="deposit-hero">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/><line x1="14" y1="15" x2="18" y2="15"/></svg>
+      <h2>Mobile Check Deposit</h2>
+      <p>Deposit checks from anywhere using your phone's camera. Funds typically available the next business day.</p>
+    </div>
+    <div class="deposit-steps">
+      <div class="step-card"><div class="step-num">1</div><div class="step-info"><h4>Select account</h4><p>Choose which account you'd like to deposit your check into.</p></div></div>
+      <div class="step-card"><div class="step-num">2</div><div class="step-info"><h4>Enter amount</h4><p>Enter the dollar amount of your check before taking photos.</p></div></div>
+      <div class="step-card"><div class="step-num">3</div><div class="step-info"><h4>Take photos</h4><p>Photograph the front and back of your endorsed check.</p></div></div>
+      <div class="step-card"><div class="step-num">4</div><div class="step-info"><h4>Submit</h4><p>Review and submit. You'll get a confirmation when complete.</p></div></div>
+    </div>
+    <div class="deposit-btns">
+      <button class="dep-btn-primary" onclick="goScreen('deposit-camera')">📷 &nbsp;Deposit a Check Now</button>
+      <button class="dep-btn-sec" onclick="showModal('deposit-history')">View Deposit History</button>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+  <div class="bottom-nav">
+    <button class="bnav-item" onclick="setBnav('accounts');goScreen('main')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Accounts</span></button>
+    <button class="bnav-item" onclick="setBnav('pay');goScreen('pay-transfer')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>Pay & Transfer</span></button>
+    <button class="bnav-item on" onclick="setBnav('deposit');goScreen('deposit')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><polyline points="12 14 12 19"/><polyline points="9 17 12 20 15 17"/></svg><span>Deposit Checks</span></button>
+    <button class="bnav-item" onclick="setBnav('services');goScreen('services')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Services</span></button>
+  </div>
+</div>
+
+<!-- ════════════ DEPOSIT CAMERA ════════════ -->
+<div id="screen-deposit-camera" class="screen">
+  <div class="pt-header">
+    <button class="back-btn" onclick="goScreen('deposit')">‹</button>
+    <div><div class="pt-title">New Deposit</div></div>
+  </div>
+  <div class="scroll-body">
+    <div class="form-screen-body">
+      <div class="form-field">
+        <label>Deposit To</label>
+        <select><option>Business Adv Checking - 3432</option><option>Business Adv Savings - 0193</option></select>
+      </div>
+      <div class="form-field">
+        <label>Check Amount</label>
+        <input type="number" placeholder="$0.00" id="deposit-amount"/>
+      </div>
+      <div style="background:#f8f8f8;border:2px dashed var(--gray-border);border-radius:10px;padding:30px;text-align:center;margin-bottom:16px;cursor:pointer;" onclick="showModal('camera-front')">
+        <div style="font-size:32px;margin-bottom:8px;">📷</div>
+        <div style="font-size:14px;font-weight:600;color:var(--navy);">Take Front Photo</div>
+        <div style="font-size:12px;color:var(--gray-text);margin-top:4px;">Tap to photograph front of check</div>
+      </div>
+      <div style="background:#f8f8f8;border:2px dashed var(--gray-border);border-radius:10px;padding:30px;text-align:center;margin-bottom:20px;cursor:pointer;" onclick="showModal('camera-back')">
+        <div style="font-size:32px;margin-bottom:8px;">📷</div>
+        <div style="font-size:14px;font-weight:600;color:var(--navy);">Take Back Photo</div>
+        <div style="font-size:12px;color:var(--gray-text);margin-top:4px;">Remember to endorse your check</div>
+      </div>
+      <button class="confirm-btn" onclick="doDeposit()">Submit Deposit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ SERVICES SCREEN ════════════ -->
+<div id="screen-services" class="screen">
+  <div class="pt-header">
+    <button class="back-btn" onclick="goBack()">‹</button>
+    <div><div class="pt-title">Services</div></div>
+  </div>
+  <div class="scroll-body">
+    <div class="services-list">
+      <div class="svc-section">
+        <div class="svc-section-title">Account Services</div>
+        <div class="svc-card">
+          <div class="svc-row" onclick="showModal('order-checks')"><div class="svc-ico ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="#1464a5" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div class="svc-info"><div class="svc-name">Order Checks</div><div class="svc-desc">Reorder personal checks</div></div><span class="chev">›</span></div>
+          <div class="svc-row" onclick="showModal('stop-payment')"><div class="svc-ico ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="#e31837" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div><div class="svc-info"><div class="svc-name">Stop Payment</div><div class="svc-desc">Stop a check payment</div></div><span class="chev">›</span></div>
+          <div class="svc-row" onclick="showModal('direct-deposit')"><div class="svc-ico ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg></div><div class="svc-info"><div class="svc-name">Set Up Direct Deposit</div><div class="svc-desc">Get paid faster</div></div><span class="chev">›</span></div>
+          <div class="svc-row" onclick="showModal('enotifications')"><div class="svc-ico ic-navy"><svg viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div class="svc-info"><div class="svc-name">e-Notifications</div><div class="svc-desc">Manage alerts &amp; notifications</div></div><span class="chev">›</span></div>
+        </div>
+      </div>
+      <div class="svc-section">
+        <div class="svc-section-title">Card Services</div>
+        <div class="svc-card">
+          <div class="svc-row" onclick="showModal('card-lock')"><div class="svc-ico ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="#e31837" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="svc-info"><div class="svc-name">Lock / Unlock Card</div><div class="svc-desc">Temporarily lock your debit card</div></div><span class="chev">›</span></div>
+          <div class="svc-row" onclick="showModal('report-fraud')"><div class="svc-ico ic-orange" style="background:#fff3e6;"><svg viewBox="0 0 24 24" fill="none" stroke="#e65100" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="svc-info"><div class="svc-name">Report Fraud</div><div class="svc-desc">Report unauthorized transactions</div></div><span class="chev">›</span></div>
+          <div class="svc-row" onclick="showModal('travel-notice')"><div class="svc-ico ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="#1464a5" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="svc-info"><div class="svc-name">Travel Notice</div><div class="svc-desc">Let us know when you're traveling</div></div><span class="chev">›</span></div>
+          <div class="svc-row" onclick="showModal('pin-change')"><div class="svc-ico ic-navy"><svg viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div class="svc-info"><div class="svc-name">Change PIN</div><div class="svc-desc">Update your card PIN</div></div><span class="chev">›</span></div>
+        </div>
+      </div>
+      <div class="svc-section">
+        <div class="svc-section-title">Statements &amp; Documents</div>
+        <div class="svc-card">
+          <div class="svc-row" onclick="showModal('statements')"><div class="svc-ico ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="#1464a5" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="svc-info"><div class="svc-name">Statements</div><div class="svc-desc">View &amp; download statements</div></div><span class="chev">›</span></div>
+          <div class="svc-row" onclick="showModal('tax-docs')"><div class="svc-ico ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="svc-info"><div class="svc-name">Tax Documents</div><div class="svc-desc">1099s and year-end summaries</div></div><span class="chev">›</span></div>
+        </div>
+      </div>
+      <div class="svc-section">
+        <div class="svc-section-title">Help &amp; Support</div>
+        <div class="svc-card">
+          <div class="svc-row" onclick="showModal('contact')"><div class="svc-ico ic-navy"><svg viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.55 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 5.67 5.67l1.06-1.06a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.27 16z"/></svg></div><div class="svc-info"><div class="svc-name">Contact Us</div><div class="svc-desc">Call, chat, or schedule a callback</div></div><span class="chev">›</span></div>
+          <div class="svc-row" onclick="showModal('find-branch')"><div class="svc-ico ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="#e31837" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="svc-info"><div class="svc-name">Find Branch / ATM</div><div class="svc-desc">Locate nearest locations</div></div><span class="chev">›</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+  <div class="bottom-nav">
+    <button class="bnav-item" onclick="setBnav('accounts');goScreen('main')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Accounts</span></button>
+    <button class="bnav-item" onclick="setBnav('pay');goScreen('pay-transfer')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>Pay & Transfer</span></button>
+    <button class="bnav-item" onclick="setBnav('deposit');goScreen('deposit')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><polyline points="12 14 12 19"/><polyline points="9 17 12 20 15 17"/></svg><span>Deposit Checks</span></button>
+    <button class="bnav-item on" onclick="setBnav('services');goScreen('services')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Services</span></button>
+  </div>
+</div>
+
+<!-- ════════════ ACCOUNT DETAIL ════════════ -->
+<div id="screen-acct-detail" class="screen">
+  <div class="acct-detail-header" id="adh">
+    <div class="adh-top">
+      <button class="adh-back" onclick="goBack()">‹</button>
+      <div><div class="adh-name" id="adh-name">Business Adv Checking</div><div class="adh-num" id="adh-num">Account - 3432</div></div>
+    </div>
+    <div class="adh-balance-lbl" id="adh-lbl">Available Balance</div>
+    <div class="adh-balance" id="adh-bal">$57,213.00</div>
+    <div class="adh-avail" id="adh-avail">Current Balance: $57,213.00</div>
+  </div>
+  <div class="acct-quick-btns">
+    <button class="aqb" onclick="goScreen('transfer-form')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>Transfer</span></button>
+    <button class="aqb" onclick="goScreen('pay-bills')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span>Pay Bills</span></button>
+    <button class="aqb" onclick="goScreen('zelle')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="font-style:italic;"><text x="4" y="18" font-size="14" font-weight="800" fill="#6d1ed4" stroke="none">Z</text></svg><span>Zelle®</span></button>
+    <button class="aqb" onclick="showModal('statements')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Statements</span></button>
+    <button class="aqb" onclick="showModal('more-options')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg><span>More</span></button>
+  </div>
+  <div class="tx-filter">
+    <div class="filter-chip on" onclick="setFilter(this,'All')">All</div>
+    <div class="filter-chip" onclick="setFilter(this,'Deposits')">Deposits</div>
+    <div class="filter-chip" onclick="setFilter(this,'Withdrawals')">Withdrawals</div>
+    <div class="filter-chip" onclick="setFilter(this,'Checks')">Checks</div>
+    <div class="filter-chip" onclick="setFilter(this,'Pending')">Pending</div>
+  </div>
+  <div class="scroll-body" id="tx-list">
+    <div class="tx-month">January 2025</div>
+    <div class="tx-row" onclick="showModal('tx-detail-grocery')"><div class="tx-ico" style="background:#fff3e6;">🛒</div><div class="tx-desc"><div class="tx-name">Whole Foods Market</div><div class="tx-date">Jan 3, 2025</div></div><div class="tx-right"><div class="tx-amt debit">-$87.43</div><div class="tx-bal">Bal: $57,213.00</div></div></div>
+    <div class="tx-row" onclick="showModal('tx-detail-payroll')"><div class="tx-ico" style="background:#e6f4ea;">💵</div><div class="tx-desc"><div class="tx-name">ACH Deposit – Payroll</div><div class="tx-date">Jan 2, 2025</div></div><div class="tx-right"><div class="tx-amt credit">+$4,200.00</div><div class="tx-bal">Bal: $57,300.43</div></div></div>
+    <div class="tx-row" onclick="showModal('tx-zelle')"><div class="tx-ico" style="background:#f3eefb;">Z</div><div class="tx-desc"><div class="tx-name">Zelle – Mike Johnson</div><div class="tx-date">Jan 1, 2025</div></div><div class="tx-right"><div class="tx-amt debit">-$250.00</div><div class="tx-bal">Bal: $53,100.43</div></div></div>
+    <div class="tx-month">December 2024</div>
+    <div class="tx-row" onclick="showModal('tx-amazon')"><div class="tx-ico" style="background:#fde8eb;">📦</div><div class="tx-desc"><div class="tx-name">Amazon Business</div><div class="tx-date">Dec 31, 2024</div></div><div class="tx-right"><div class="tx-amt debit">-$342.18</div><div class="tx-bal">Bal: $53,350.43</div></div></div>
+    <div class="tx-row" onclick="showModal('tx-atm')"><div class="tx-ico" style="background:#e8eef7;">🏧</div><div class="tx-desc"><div class="tx-name">ATM Withdrawal</div><div class="tx-date">Dec 30, 2024</div></div><div class="tx-right"><div class="tx-amt debit">-$200.00</div><div class="tx-bal">Bal: $53,692.61</div></div></div>
+    <div class="tx-row" onclick="showModal('tx-transfer')"><div class="tx-ico" style="background:#e8eef7;">⇄</div><div class="tx-desc"><div class="tx-name">Transfer from Savings</div><div class="tx-date">Dec 28, 2024</div></div><div class="tx-right"><div class="tx-amt credit">+$1,000.00</div><div class="tx-bal">Bal: $53,892.61</div></div></div>
+    <div class="tx-row" onclick="showModal('tx-starbucks')"><div class="tx-ico" style="background:#e6f4ea;">☕</div><div class="tx-desc"><div class="tx-name">Starbucks</div><div class="tx-date">Dec 27, 2024</div></div><div class="tx-right"><div class="tx-amt debit">-$6.75</div><div class="tx-bal">Bal: $52,892.61</div></div></div>
+    <div class="tx-row" onclick="showModal('tx-client')"><div class="tx-ico" style="background:#e6f4ea;">💼</div><div class="tx-desc"><div class="tx-name">Client Payment – ACH</div><div class="tx-date">Dec 26, 2024</div></div><div class="tx-right"><div class="tx-amt credit">+$12,500.00</div><div class="tx-bal">Bal: $52,899.36</div></div></div>
+    <div class="tx-row" onclick="showModal('tx-office')"><div class="tx-ico" style="background:#fff3e6;">🖨️</div><div class="tx-desc"><div class="tx-name">Office Depot</div><div class="tx-date">Dec 24, 2024</div></div><div class="tx-right"><div class="tx-amt debit">-$156.90</div><div class="tx-bal">Bal: $40,399.36</div></div></div>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- ════════════ ZELLE SCREEN ════════════ -->
+<div id="screen-zelle" class="screen">
+  <div class="pt-header">
+    <button class="back-btn" onclick="goBack()">‹</button>
+    <div><div class="pt-title" style="font-style:italic;color:#6d1ed4;">Zelle®</div></div>
+  </div>
+  <div class="scroll-body">
+    <div class="zelle-header">
+      <div class="zelle-logo-big">Zelle®</div>
+      <div class="zelle-sub-txt">Send and receive money in minutes with people you know and trust.</div>
+    </div>
+    <div class="zelle-actions">
+      <button class="zelle-btn send" onclick="showModal('zelle-send')">Send Money</button>
+      <button class="zelle-btn request" onclick="showModal('zelle-request')">Request Money</button>
+    </div>
+    <div class="pending-section">
+      <div class="pending-title">Pending Requests (3)</div>
+      <div class="pending-item"><div class="pi-ava" style="background:#e65100;">MJ</div><div class="pi-info"><div class="pi-name">Mike Johnson</div><div class="pi-note">Requesting $45.00 · Lunch split</div></div><div class="pi-btns"><button class="pi-accept" onclick="showToast('Accepted $45.00 to Mike Johnson')">Accept</button><button class="pi-decline" onclick="showToast('Request declined')">Decline</button></div></div>
+      <div class="pending-item"><div class="pi-ava" style="background:#2e7d32;">SA</div><div class="pi-info"><div class="pi-name">Sarah Anderson</div><div class="pi-note">Requesting $120.00 · Concert tickets</div></div><div class="pi-btns"><button class="pi-accept" onclick="showToast('Accepted $120.00 to Sarah')">Accept</button><button class="pi-decline" onclick="showToast('Request declined')">Decline</button></div></div>
+      <div class="pending-item"><div class="pi-ava" style="background:#6d1ed4;">DL</div><div class="pi-info"><div class="pi-name">David Liu</div><div class="pi-note">Requesting $35.00 · Dinner</div></div><div class="pi-btns"><button class="pi-accept" onclick="showToast('Accepted $35.00 to David')">Accept</button><button class="pi-decline" onclick="showToast('Request declined')">Decline</button></div></div>
+    </div>
+    <div class="pt-section-title" style="padding-top:20px;">Recent Activity</div>
+    <div class="recent-transfer" onclick="showModal('tx-detail-1')"><div class="rt-avatar" style="background:#e65100;">MJ</div><div class="rt-info"><div class="rt-name">Mike Johnson</div><div class="rt-date">Today, 2:41 PM</div></div><span class="rt-amount out">-$250.00</span></div>
+    <div class="recent-transfer" onclick="showModal('tx-detail-2')"><div class="rt-avatar" style="background:#2e7d32;">SA</div><div class="rt-info"><div class="rt-name">Sarah Anderson</div><div class="rt-date">Yesterday</div></div><span class="rt-amount in">+$125.00</span></div>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- ════════════ INBOX SCREEN ════════════ -->
+<div id="screen-inbox" class="screen">
+  <div class="pt-header">
+    <button class="back-btn" onclick="goScreen('main')">‹</button>
+    <div><div class="pt-title">Inbox</div><div class="pt-subtitle">9 unread messages</div></div>
+  </div>
+  <div class="scroll-body">
+    <div class="inbox-list">
+      <div class="inbox-item unread" onclick="showModal('msg1')"><div class="inbox-dot"></div><div class="inbox-info"><div class="inbox-meta"><span class="inbox-from">Bank of America</span><span class="inbox-date">Today</span></div><div class="inbox-subject">Your statement is ready</div><div class="inbox-preview">Your December 2024 statement for Business Adv Checking -3432 is now available...</div></div></div>
+      <div class="inbox-item unread" onclick="showModal('msg2')"><div class="inbox-dot"></div><div class="inbox-info"><div class="inbox-meta"><span class="inbox-from">Security Alert</span><span class="inbox-date">Today</span></div><div class="inbox-subject">New sign-in detected</div><div class="inbox-preview">A new sign-in to your account was detected from iPhone in Abuja, Nigeria...</div></div></div>
+      <div class="inbox-item unread" onclick="showModal('msg3')"><div class="inbox-dot"></div><div class="inbox-info"><div class="inbox-meta"><span class="inbox-from">Preferred Rewards</span><span class="inbox-date">Dec 30</span></div><div class="inbox-subject">You've earned bonus points!</div><div class="inbox-preview">Congratulations! You've earned 2,400 bonus points this month...</div></div></div>
+      <div class="inbox-item" onclick="showModal('msg4')"><div class="inbox-dot read"></div><div class="inbox-info"><div class="inbox-meta"><span class="inbox-from">Bank of America</span><span class="inbox-date">Dec 28</span></div><div class="inbox-subject">Payment received</div><div class="inbox-preview">A payment of $12,500.00 was received for your Business Adv Checking...</div></div></div>
+      <div class="inbox-item" onclick="showModal('msg5')"><div class="inbox-dot read"></div><div class="inbox-info"><div class="inbox-meta"><span class="inbox-from">Fraud Prevention</span><span class="inbox-date">Dec 27</span></div><div class="inbox-subject">Transaction approved</div><div class="inbox-preview">Your transaction of $342.18 at Amazon Business was approved...</div></div></div>
+      <div class="inbox-item unread" onclick="showModal('msg6')"><div class="inbox-dot"></div><div class="inbox-info"><div class="inbox-meta"><span class="inbox-from">BofA Offers</span><span class="inbox-date">Dec 26</span></div><div class="inbox-subject">Special offer for you</div><div class="inbox-preview">As a Preferred Rewards member, you qualify for 0% APR on balance transfers...</div></div></div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- ════════════ SUCCESS SCREEN ════════════ -->
+<div id="screen-success" class="screen">
+  <div class="success-wrap">
+    <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <h2 class="success-title" id="success-title">Transfer Complete!</h2>
+    <p class="success-sub" id="success-sub">Your transfer has been submitted and will be processed.</p>
+    <div class="success-detail" id="success-detail"></div>
+    <button class="done-btn" id="success-done" onclick="goScreen('main');setBnav('accounts')">Done</button>
+  </div>
+</div>
+
+<!-- ════════════ DRAWER ════════════ -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer(event)">
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-greeting">Hello, Jenn</div>
+      <div class="drawer-sub">Preferred Rewards for Business · Platinum</div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">×</button>
+    <div class="drawer-section">
+      <div class="drawer-section-title">Accounts</div>
+      <div class="drawer-item" onclick="closeDrawer();goScreen('main');switchTab('accts')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg><span>My Accounts</span></div>
+      <div class="drawer-item" onclick="closeDrawer();showModal('rewards-drawer')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Rewards</span></div>
+      <div class="drawer-item" onclick="closeDrawer();goScreen('main');switchTab('dash')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Dashboard</span></div>
+    </div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-section">
+      <div class="drawer-section-title">Move Money</div>
+      <div class="drawer-item" onclick="closeDrawer();goScreen('pay-transfer')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>Pay & Transfer</span></div>
+      <div class="drawer-item" onclick="closeDrawer();goScreen('zelle')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><span>Zelle®</span></div>
+      <div class="drawer-item" onclick="closeDrawer();goScreen('deposit')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/></svg><span>Deposit Checks</span></div>
+    </div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-section">
+      <div class="drawer-section-title">More</div>
+      <div class="drawer-item" onclick="closeDrawer();goScreen('services')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Services</span></div>
+      <div class="drawer-item" onclick="closeDrawer();goScreen('inbox')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>Inbox</span></div>
+      <div class="drawer-item" onclick="closeDrawer();showModal('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile &amp; Settings</span></div>
+      <div class="drawer-item" onclick="closeDrawer();showModal('security')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Security Center</span></div>
+    </div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-item" onclick="closeDrawer();showModal('logout')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>Log Out</span></div>
+  </div>
+</div>
+
+<!-- ════════════ ADMIN PORTAL ════════════ -->
+<div id="admin-portal" style="position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:none;align-items:center;justify-content:center;">
+  <div class="admin-shell">
+    <div class="admin-topbar">
+      <div class="admin-topbar-title">⚙ Admin Portal</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="admin-topbar-badge">RESTRICTED</span>
+        <button class="admin-close-btn" onclick="closeAdminPortal()">✕</button>
+      </div>
+    </div>
+    <!-- Admin Login -->
+    <div id="admin-login-screen" class="admin-login-wrap">
+      <div class="admin-lock-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div class="admin-login-title">Admin Access</div>
+      <div class="admin-login-sub">Enter your admin credentials to access the control panel.</div>
+      <div class="admin-field">
+        <label>Username</label>
+        <input type="text" id="admin-user-input" placeholder="Enter username" autocomplete="off"/>
+      </div>
+      <div class="admin-field">
+        <label>Password</label>
+        <input type="password" id="admin-pass-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')doAdminLogin()"/>
+      </div>
+      <div class="admin-error" id="admin-error-msg"></div>
+      <button class="admin-login-btn" onclick="doAdminLogin()">Authenticate</button>
+    </div>
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="admin-dash" style="display:none;">
+      <div class="admin-nav">
+        <button class="admin-nav-btn on" onclick="setAdminTab('profile',this)">Profile</button>
+        <button class="admin-nav-btn" onclick="setAdminTab('balances',this)">Balances</button>
+        <button class="admin-nav-btn" onclick="setAdminTab('transactions',this)">Transactions</button>
+        <button class="admin-nav-btn" onclick="setAdminTab('credentials',this)">Access</button>
+      </div>
+      <!-- Profile Panel -->
+      <div id="admin-panel-profile" class="admin-panel on">
+        <div class="admin-section-title">Account Holder</div>
+        <div class="admin-input-group"><label>Full Name</label><input type="text" id="ap-fullname" placeholder="e.g. James Okafor"/></div>
+        <div class="admin-input-group"><label>Business Name</label><input type="text" id="ap-bizname" placeholder="e.g. Apex Ventures LLC"/></div>
+        <div class="admin-input-group"><label>Menu Greeting</label><input type="text" id="ap-greeting" placeholder="e.g. Good morning, James"/></div>
+        <button class="admin-save-btn" onclick="saveProfile()">Save Profile</button>
+        <div class="admin-success-msg" id="profile-msg"></div>
+      </div>
+      <!-- Balances Panel -->
+      <div id="admin-panel-balances" class="admin-panel">
+        <div class="admin-section-title">Checking Account</div>
+        <div class="admin-input-group"><label>Available Balance</label><input type="text" id="ab-checking" placeholder="e.g. 57,213.00"/></div>
+        <div class="admin-input-group"><label>Account Number (last 4)</label><input type="text" id="ab-checking-num" placeholder="e.g. 3432" maxlength="4"/></div>
+        <div class="admin-section-title" style="margin-top:10px;">Savings Account</div>
+        <div class="admin-input-group"><label>Available Balance</label><input type="text" id="ab-savings" placeholder="e.g. 24,500.00"/></div>
+        <div class="admin-input-group"><label>Account Number (last 4)</label><input type="text" id="ab-savings-num" placeholder="e.g. 0193" maxlength="4"/></div>
+        <div class="admin-section-title" style="margin-top:10px;">Cash Rewards Card</div>
+        <div class="admin-input-group"><label>Current Balance</label><input type="text" id="ab-card" placeholder="e.g. 3,240.18"/></div>
+        <button class="admin-save-btn" onclick="saveBalances()">Save Balances</button>
+        <div class="admin-success-msg" id="balances-msg"></div>
+      </div>
+      <!-- Transactions Panel -->
+      <div id="admin-panel-transactions" class="admin-panel">
+        <div class="admin-section-title">Transaction History</div>
+        <div id="admin-tx-list" class="admin-tx-list"></div>
+        <button class="admin-add-tx-btn" onclick="addAdminTx()">+ Add Transaction</button>
+        <button class="admin-save-btn" onclick="saveTxList()">Apply to App</button>
+        <div class="admin-success-msg" id="tx-msg"></div>
+        <div style="height:20px;"></div>
+      </div>
+      <!-- Credentials Panel -->
+      <div id="admin-panel-credentials" class="admin-panel">
+        <div class="admin-section-title">App Login Credentials</div>
+        <div style="background:#1a1a24;border:1px solid #2a2a3a;border-radius:8px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:#888;line-height:1.6;">
+          These are the username and password required to sign into the banking app on the login screen.
+        </div>
+        <div class="admin-input-group">
+          <label>Current Username</label>
+          <input type="text" id="ac-current-user" placeholder="Current username" autocomplete="off"/>
+        </div>
+        <div class="admin-input-group">
+          <label>New Username</label>
+          <input type="text" id="ac-new-user" placeholder="Enter new username" autocomplete="off"/>
+        </div>
+        <div style="height:1px;background:#2a2a3a;margin:4px 0 18px;"></div>
+        <div class="admin-input-group">
+          <label>Current Password</label>
+          <input type="password" id="ac-current-pass" placeholder="Current password" autocomplete="off"/>
+        </div>
+        <div class="admin-input-group">
+          <label>New Password</label>
+          <input type="password" id="ac-new-pass" placeholder="Enter new password" autocomplete="off"/>
+        </div>
+        <div class="admin-input-group">
+          <label>Confirm New Password</label>
+          <input type="password" id="ac-confirm-pass" placeholder="Re-enter new password" autocomplete="off"/>
+        </div>
+        <button class="admin-save-btn" onclick="saveCredentials()">Update Credentials</button>
+        <div class="admin-success-msg" id="creds-msg"></div>
+        <div style="height:20px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-sheet" id="modal-sheet">
+    <div class="modal-handle"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast-el"></div>
+
+<script>
+// ── STATE ──
+let currentScreen = 'login';
+let prevScreen = 'main';
+let currentAcct = 'checking';
+const accounts = {
+  checking:  {name:'Business Adv Checking', num:'Account - 3432', lbl:'Available Balance', bal:'$57,213.00', curr:'Current Balance: $57,213.00'},
+  savings:   {name:'Business Adv Savings', num:'Account - 0193', lbl:'Available Balance', bal:'$10,900.00', curr:'Current Balance: $10,900.00'},
+  credit:    {name:'Cash Rewards Card', num:'Account - 9832', lbl:'Current Balance', bal:'$982.53', curr:'Available Credit: $24,017.47'},
+  bankameri: {name:'BankAmeriCard Rewards', num:'Account - 00001', lbl:'Current Balance', bal:'$2,543.21', curr:'Available Credit: $22,456.79'},
+  merrill:   {name:'Merrill Investment', num:'Account - ML001', lbl:'Total Value', bal:'$1,922,350.00', curr:'Today\'s Change: +$2,340.00'},
+  '401k':    {name:'Merrill 401(k) Plan', num:'Plan¹', lbl:'Total Value', bal:'$85,000.00', curr:'YTD Return: +8.4%'},
+  equity:    {name:'Merrill Equity Plan', num:'Plan²', lbl:'Total Value', bal:'$12,000.00', curr:'YTD Return: +12.1%'},
+  hsa:       {name:'HSA Cash Account', num:'Account³', lbl:'Available Balance', bal:'$1,000.00', curr:'HSA Investment: $8,500.00'},
+};
+
+// ── NAVIGATION ──
+function goScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  prevScreen = currentScreen;
+  currentScreen = id;
+  document.getElementById('screen-' + id).classList.add('active');
+}
+function goBack() { goScreen(prevScreen === currentScreen ? 'main' : prevScreen); }
+function goAcctDetail(id) {
+  currentAcct = id;
+  const a = accounts[id];
+  if(a){
+    document.getElementById('adh-name').textContent = a.name;
+    document.getElementById('adh-num').textContent = a.num;
+    document.getElementById('adh-lbl').textContent = a.lbl;
+    document.getElementById('adh-bal').textContent = a.bal;
+    document.getElementById('adh-avail').textContent = a.curr;
+  }
+  goScreen('acct-detail');
+}
+
+// ── TABS ──
+function switchTab(t) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('on'));
+  document.getElementById('tab-' + t).classList.add('on');
+  document.getElementById('panel-' + t).classList.add('on');
+}
+
+// ── SECTION TOGGLE ──
+function toggleSec(id) {
+  const body = document.getElementById('body-' + id);
+  const caret = document.getElementById('caret-' + id);
+  body.classList.toggle('hide');
+  caret.classList.toggle('down');
+}
+
+// ── BOTTOM NAV ──
+function setBnav(id) {
+  document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('on'));
+  const el = document.getElementById('bnav-' + id);
+  if(el) el.classList.add('on');
+}
+
+// ── LOGIN ──
+// ── APP LOGIN CREDENTIALS (editable from admin) ──
+const appCreds = { user: 'user', pass: '1234' };
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value.trim();
+  if(!u || !p){ showToast('Please enter username and password'); return; }
+  if(u !== appCreds.user || p !== appCreds.pass){
+    const errEl = document.getElementById('login-error-msg');
+    if(errEl){ errEl.textContent = 'Incorrect username or password.'; setTimeout(()=>errEl.textContent='',3000); }
+    else showToast('Incorrect username or password');
+    document.getElementById('login-pass').value = '';
+    return;
+  }
+  showToast('Signing in…');
+  setTimeout(() => { goScreen('main'); setBnav('accounts'); }, 800);
+}
+
+// ── TRANSFER ──
+function doTransfer() {
+  const amt = document.getElementById('transfer-amount').value;
+  if(!amt || isNaN(amt) || parseFloat(amt) <= 0){ showToast('Please enter a valid amount'); return; }
+  document.getElementById('success-title').textContent = 'Transfer Submitted!';
+  document.getElementById('success-sub').textContent = 'Your transfer has been submitted and will process within 1 business day.';
+  document.getElementById('success-detail').innerHTML = `
+    <div class="success-detail-row"><span class="key">From</span><span class="val">Checking - 3432</span></div>
+    <div class="success-detail-row"><span class="key">To</span><span class="val">Savings - 0193</span></div>
+    <div class="success-detail-row"><span class="key">Amount</span><span class="val">$${parseFloat(amt).toFixed(2)}</span></div>
+    <div class="success-detail-row"><span class="key">Date</span><span class="val">${new Date().toLocaleDateString()}</span></div>
+  `;
+  document.getElementById('success-done').onclick = () => { goScreen('main'); setBnav('accounts'); };
+  goScreen('success');
+}
+
+// ── DEPOSIT ──
+function doDeposit() {
+  const amt = document.getElementById('deposit-amount').value;
+  if(!amt || isNaN(amt) || parseFloat(amt) <= 0){ showToast('Please enter the check amount'); return; }
+  document.getElementById('success-title').textContent = 'Deposit Submitted!';
+  document.getElementById('success-sub').textContent = 'Your check deposit is being processed. Funds typically available next business day.';
+  document.getElementById('success-detail').innerHTML = `
+    <div class="success-detail-row"><span class="key">To</span><span class="val">Checking - 3432</span></div>
+    <div class="success-detail-row"><span class="key">Amount</span><span class="val">$${parseFloat(amt).toFixed(2)}</span></div>
+    <div class="success-detail-row"><span class="key">Availability</span><span class="val">Next business day</span></div>
+  `;
+  document.getElementById('success-done').onclick = () => { goScreen('main'); setBnav('accounts'); };
+  goScreen('success');
+}
+
+// ── FILTER CHIPS ──
+function setFilter(el, name) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  showToast('Showing: ' + name);
+}
+
+// ── DRAWER ──
+function openDrawer() {
+  const overlay = document.getElementById('drawer-overlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => overlay.classList.add('open'));
+}
+function closeDrawer(e) {
+  if(e && e.target !== document.getElementById('drawer-overlay') && !e.target.classList.contains('drawer-close')) return;
+  const overlay = document.getElementById('drawer-overlay');
+  overlay.classList.remove('open');
+  setTimeout(() => { overlay.style.display = 'none'; }, 300);
+}
+
+// ── MODALS ──
+const modalContents = {
+  logout: `<div class="modal-title">Sign Out?</div><div class="modal-sub">You'll need to sign in again to access your accounts.</div><button class="modal-confirm" onclick="closeModal();goScreen('login')">Yes, Sign Out</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  forgot: `<div class="modal-title">Forgot Password?</div><div class="modal-sub">We'll send a reset link to your registered email address.</div><div class="form-field" style="margin-bottom:16px;"><label>Email Address</label><input type="email" placeholder="Enter your email"/></div><button class="modal-confirm" onclick="closeModal();showToast('Reset link sent!')">Send Reset Link</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  activate: `<div class="modal-title">Activate Your Card</div><div class="modal-sub">Enter the 16-digit number on the front of your new card.</div><div class="form-field" style="margin-bottom:16px;"><label>Card Number</label><input type="text" placeholder="XXXX XXXX XXXX XXXX" maxlength="19"/></div><button class="modal-confirm" onclick="closeModal();showToast('Card activated successfully!')">Activate Card</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  register: `<div class="modal-title">Create Account</div><div class="modal-sub">Set up online access to your Bank of America account.</div><button class="modal-confirm" onclick="closeModal();showToast('Redirecting to registration…')">Continue to Registration</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  products: `<div class="modal-title">Our Products</div><div class="modal-sub">Explore Bank of America products tailored for your business.</div>${['Business Credit Cards','Business Loans','Business Lines of Credit','Merchant Services','Payroll Services'].map(p=>`<div style="padding:12px 0;border-bottom:1px solid #eee;font-size:14px;font-weight:600;cursor:pointer;" onclick="closeModal();showToast('Exploring: ${p}')">${p} <span style="float:right;color:#aaa;">›</span></div>`).join('')}<button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  jenn: `<div class="modal-title">Jenn & Co.</div><div class="modal-sub">Business Profile · Preferred Rewards for Business Platinum Member since Mar 2018</div><div class="success-detail"><div class="success-detail-row"><span class="key">Member Since</span><span class="val">March 2018</span></div><div class="success-detail-row"><span class="key">Tier</span><span class="val">Platinum Honors</span></div><div class="success-detail-row"><span class="key">Points Balance</span><span class="val">48,200 pts</span></div></div><button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  'rewards-summary': `<div class="modal-title">Preferred Rewards Summary</div><div class="modal-sub">Your Platinum Honors membership provides premium benefits.</div><div class="success-detail">${[['Interest Rate Booster','0.05% – 0.10%'],['Credit Card Bonus','75% rewards bonus'],['Mortgage Discount','0.250% rate discount'],['Investing Benefit','$0 trades at Merrill'],['Monthly Fees','All waived']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  networth: `<div class="modal-title">Net Worth</div><div class="modal-sub">Your total net worth across all accounts.</div><div class="success-detail">${[['Banking','$68,113.00'],['Credit Cards','-$3,525.74'],['Investments','$1,922,350.00'],['HSA','$9,500.00'],['Total','$1,996,437.26']].map((r,i)=>`<div class="success-detail-row" style="${i===4?'font-weight:700;':''}"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  spending: `<div class="modal-title">December Spending</div><div class="modal-sub">3 categories exceeded your budget this month.</div><div class="success-detail">${[['🍽️ Dining','$640 / $500 budget','over'],['🛒 Shopping','$1,240 / $800 budget','over'],['✈️ Travel','$520 / $200 budget','over'],['⛽ Gas & Auto','$180 / $250 budget','ok'],['💊 Healthcare','$95 / $150 budget','ok']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val" style="color:${r[2]==='over'?'#e31837':'#2e7d32'}">${r[1]}</span></div>`).join('')}</div><button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  fico: `<div class="modal-title">FICO® Score: 734</div><div class="modal-sub">Your score is in the Good range (670–739).</div><div style="background:#f4f4f4;border-radius:8px;padding:16px;margin-bottom:12px;"><div style="height:12px;background:linear-gradient(to right,#e31837 0%,#ff9800 33%,#fdd835 50%,#66bb6a 67%,#2e7d32 100%);border-radius:6px;position:relative;"><div style="position:absolute;left:64%;top:-4px;width:2px;height:20px;background:#012169;border-radius:2px;"></div></div><div style="display:flex;justify-content:space-between;font-size:10px;color:#666;margin-top:6px;"><span>300</span><span>Poor</span><span>Fair</span><span>Good</span><span>Very Good</span><span>850</span></div></div><div class="success-detail">${[['Score','734'],['Range','670–739 Good'],['Last Updated','Dec 1, 2024'],['Open Accounts','8'],['Credit Utilization','12%']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  'rewards-dash': `<div class="modal-title">My Rewards</div><div class="modal-sub">Preferred Rewards for Business · Platinum Honors</div><div class="success-detail">${[['Points Balance','48,200 pts'],['Tier','Platinum Honors'],['Points Expiring','None'],['Cash Back Rate','Up to 3%'],['Card Bonus','+75% on rewards']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-confirm" onclick="closeModal();showToast('Redirecting to Rewards Center')">Redeem Points</button><button class="modal-close" onclick="closeModal()">Close</button>`,
+  lifeplan: `<div class="modal-title">Bank of America Life Plan®</div><div class="modal-sub">Turn your dreams into an actionable plan.</div><p style="font-size:13px;color:#666;line-height:1.6;margin-bottom:16px;">Work with your goals and priorities to create a personalized financial plan. Track progress toward retirement, education savings, and more.</p><button class="modal-confirm" onclick="closeModal();showToast('Opening Life Plan…')">Get Started</button><button class="modal-close" onclick="closeModal()">Close</button>`,
+  customize: `<div class="modal-title">Customize Dashboard</div><div class="modal-sub">Choose which cards to show on your dashboard.</div>${['Checking Account','Credit Card','Spending Overview','Zelle®','FICO® Score','Life Plan®','Rewards'].map(item=>`<div style="padding:12px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:14px;font-weight:600;">${item}</span><div style="width:44px;height:24px;background:#012169;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:flex-end;padding:2px;" onclick="showToast('${item} toggled')"><div style="width:20px;height:20px;background:#fff;border-radius:50%;"></div></div></div>`).join('')}<button class="modal-close" style="margin-top:16px;" onclick="closeModal()">Save Changes</button>`,
+  wire: `<div class="modal-title">Wire Transfer</div><div class="modal-sub">Send domestic or international wire transfers.</div><button class="modal-confirm" onclick="closeModal();showToast('Opening wire transfer form…')">Domestic Wire</button><button class="modal-confirm" style="background:#012169;" onclick="closeModal();showToast('Opening international wire form…')">International Wire</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  autopay: `<div class="modal-title">Set Up AutoPay</div><div class="modal-sub">Never miss a payment. Set up automatic payments for your accounts.</div><div class="form-field" style="margin-bottom:12px;"><label>Account</label><select><option>Cash Rewards Card - 9832</option><option>BankAmeriCard - 00001</option></select></div><div class="form-field" style="margin-bottom:12px;"><label>Payment Amount</label><select><option>Minimum Payment</option><option>Statement Balance</option><option>Custom Amount</option></select></div><button class="modal-confirm" onclick="closeModal();showToast('AutoPay configured!')">Enable AutoPay</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  external: `<div class="modal-title">External Transfer</div><div class="modal-sub">Transfer money to or from accounts at other banks.</div><button class="modal-confirm" onclick="closeModal();showToast('Opening external transfer…')">Add External Account</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'bill-pay': `<div class="modal-title">Pay Energy Bill</div><div class="modal-sub">Amount Due: $128.24 · Due: August 1</div><div class="form-field" style="margin-bottom:12px;"><label>Pay From</label><select><option>Business Adv Checking - 3432</option></select></div><div class="form-field" style="margin-bottom:12px;"><label>Amount</label><input type="number" value="128.24"/></div><div class="form-field" style="margin-bottom:12px;"><label>Payment Date</label><input type="date"/></div><button class="modal-confirm" onclick="closeModal();showToast('Bill payment submitted!')">Submit Payment</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'bill-pay-2': `<div class="modal-title">Pay Cash Rewards Card</div><div class="modal-sub">Min Payment: $15.00 · Statement Balance: $982.53</div><div class="form-field" style="margin-bottom:12px;"><label>Payment Type</label><select><option>Minimum Payment ($15.00)</option><option>Statement Balance ($982.53)</option><option>Custom Amount</option></select></div><button class="modal-confirm" onclick="closeModal();showToast('Payment submitted!')">Submit Payment</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'bill-pay-3': `<div class="modal-title">Pay Internet Service</div><div class="modal-sub">Amount: $89.99 · Due: August 20</div><button class="modal-confirm" onclick="closeModal();showToast('Payment submitted!')">Pay $89.99</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'add-payee': `<div class="modal-title">Add New Payee</div><div class="form-field" style="margin-bottom:12px;"><label>Payee Name</label><input type="text" placeholder="Company or person name"/></div><div class="form-field" style="margin-bottom:12px;"><label>Account Number</label><input type="text" placeholder="Account number"/></div><div class="form-field" style="margin-bottom:12px;"><label>Zip Code</label><input type="text" placeholder="Payee zip code"/></div><button class="modal-confirm" onclick="closeModal();showToast('Payee added!')">Add Payee</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'deposit-history': `<div class="modal-title">Deposit History</div><div class="modal-sub">Recent mobile check deposits.</div><div class="success-detail">${[['Dec 15, 2024','Check #1042','$850.00'],['Nov 30, 2024','Check #1041','$1,200.00'],['Nov 12, 2024','Check #1040','$500.00']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}<br><span style="font-size:11px;">${r[1]}</span></span><span class="val">${r[2]}</span></div>`).join('')}</div><button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  'camera-front': `<div class="modal-title">📷 Front of Check</div><div class="modal-sub">Position the check in the frame and hold steady.</div><div style="background:#000;border-radius:10px;height:160px;display:flex;align-items:center;justify-content:center;margin:12px 0;"><div style="border:2px dashed rgba(255,255,255,.5);width:80%;height:80%;border-radius:6px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.7);font-size:13px;">Align check here</div></div><button class="modal-confirm" onclick="closeModal();showToast('Front photo captured ✓')">Capture Photo</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'camera-back': `<div class="modal-title">📷 Back of Check</div><div class="modal-sub">Make sure you've endorsed the back of your check.</div><div style="background:#000;border-radius:10px;height:160px;display:flex;align-items:center;justify-content:center;margin:12px 0;"><div style="border:2px dashed rgba(255,255,255,.5);width:80%;height:80%;border-radius:6px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.7);font-size:13px;">Align check here</div></div><button class="modal-confirm" onclick="closeModal();showToast('Back photo captured ✓')">Capture Photo</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'order-checks': `<div class="modal-title">Order Checks</div><div class="modal-sub">Select your style and quantity.</div><button class="modal-confirm" onclick="closeModal();showToast('Redirecting to check ordering…')">Order Now</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'stop-payment': `<div class="modal-title">Stop Payment</div><div class="modal-sub">Enter check details to place a stop payment ($30 fee may apply).</div><div class="form-field" style="margin-bottom:12px;"><label>Check Number</label><input type="text" placeholder="Check number"/></div><div class="form-row"><div class="form-field"><label>Amount</label><input type="number" placeholder="$0.00"/></div><div class="form-field"><label>Date Written</label><input type="date"/></div></div><button class="modal-confirm" onclick="closeModal();showToast('Stop payment placed')">Submit Request</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'direct-deposit': `<div class="modal-title">Direct Deposit Setup</div><div class="modal-sub">Share these details with your employer or payer.</div><div class="success-detail">${[['Bank','Bank of America'],['Routing Number','026009593'],['Account Number','XXXXXXX3432'],['Account Type','Checking']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-confirm" onclick="closeModal();showToast('Details copied to clipboard!')">Copy Details</button><button class="modal-close" onclick="closeModal()">Close</button>`,
+  enotifications: `<div class="modal-title">e-Notifications</div><div class="modal-sub">Manage your alerts and notification preferences.</div>${['Low Balance Alert','Large Transaction Alert','New Statement Ready','Unusual Activity','Payment Due Reminder'].map(n=>`<div style="padding:12px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:14px;">${n}</span><div style="width:44px;height:24px;background:#012169;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:flex-end;padding:2px;" onclick="showToast('${n} toggled')"><div style="width:20px;height:20px;background:#fff;border-radius:50%;"></div></div></div>`).join('')}<button class="modal-close" style="margin-top:16px;" onclick="closeModal()">Done</button>`,
+  'card-lock': `<div class="modal-title">Lock / Unlock Card</div><div class="modal-sub">Temporarily lock your debit card to prevent new transactions.</div><div style="text-align:center;padding:16px 0;"><div style="font-size:48px;">💳</div><div style="font-size:14px;font-weight:600;margin-top:8px;">Business Debit Card - 3432</div><div style="font-size:13px;color:#2e7d32;font-weight:600;margin-top:4px;">● Card is Active</div></div><button class="modal-confirm" onclick="closeModal();showToast('Card locked successfully')">Lock Card</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'report-fraud': `<div class="modal-title">Report Unauthorized Activity</div><div class="modal-sub">If you see a transaction you don't recognize, report it immediately.</div><button class="modal-confirm" onclick="closeModal();showToast('Connecting to Fraud Center…')">Call Fraud Center: 1-800-432-1000</button><button class="modal-confirm" style="background:#012169;" onclick="closeModal();showToast('Dispute submitted')">Dispute a Transaction</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'travel-notice': `<div class="modal-title">Travel Notice</div><div class="modal-sub">Let us know your travel plans to prevent card blocks.</div><div class="form-field" style="margin-bottom:12px;"><label>Destination</label><input type="text" placeholder="Country or city"/></div><div class="form-row"><div class="form-field"><label>Departure</label><input type="date"/></div><div class="form-field"><label>Return</label><input type="date"/></div></div><button class="modal-confirm" onclick="closeModal();showToast('Travel notice submitted!')">Submit Notice</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'pin-change': `<div class="modal-title">Change PIN</div><div class="modal-sub">Create a new 4-digit PIN for your card.</div><div class="form-field" style="margin-bottom:12px;"><label>Current PIN</label><input type="password" placeholder="Enter current PIN" maxlength="4"/></div><div class="form-field" style="margin-bottom:12px;"><label>New PIN</label><input type="password" placeholder="Enter new PIN" maxlength="4"/></div><div class="form-field" style="margin-bottom:12px;"><label>Confirm New PIN</label><input type="password" placeholder="Re-enter new PIN" maxlength="4"/></div><button class="modal-confirm" onclick="closeModal();showToast('PIN updated successfully!')">Update PIN</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  statements: `<div class="modal-title">Statements</div><div class="modal-sub">Download your account statements.</div><div class="success-detail">${['December 2024','November 2024','October 2024','September 2024','August 2024'].map(m=>`<div class="success-detail-row"><span class="key">${m}</span><span class="val" style="color:var(--blue);cursor:pointer;" onclick="showToast('Downloading ${m} statement…')">Download PDF</span></div>`).join('')}</div><button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  'tax-docs': `<div class="modal-title">Tax Documents</div><div class="modal-sub">Year-end tax documents for your records.</div><div class="success-detail">${[['1099-INT 2024','Interest Income'],['1099-MISC 2024','Miscellaneous Income'],['1099-INT 2023','Interest Income']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}<br><span style="font-size:11px;color:#666;">${r[1]}</span></span><span class="val" style="color:var(--blue);cursor:pointer;" onclick="showToast('Downloading…')">Download</span></div>`).join('')}</div><button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  contact: `<div class="modal-title">Contact Us</div><div class="modal-sub">We're here to help 24/7.</div>${[['📞 Call Us','1-800-432-1000'],['💬 Live Chat','Start a chat'],['📧 Secure Message','Send a message'],['🗓️ Schedule Callback','Choose a time']].map(c=>`<div style="padding:14px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="showToast('${c[1]}')"><span style="font-size:14px;font-weight:600;">${c[0]}</span><span style="color:var(--blue);font-size:13px;font-weight:600;">${c[1]} ›</span></div>`).join('')}<button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  'find-branch': `<div class="modal-title">Find Branch / ATM</div><div class="modal-sub">Nearby locations in Abuja, Nigeria.</div><div style="background:#e8eef7;border-radius:8px;padding:16px;text-align:center;margin-bottom:12px;font-size:13px;color:#666;">📍 Map would appear here</div>${[['BofA Partner ATM – Maitama','0.3 miles'],['Allied Bank ATM','0.7 miles'],['International Wire Office','1.2 miles']].map(b=>`<div style="padding:12px 0;border-bottom:1px solid #eee;"><div style="font-size:14px;font-weight:600;">${b[0]}</div><div style="font-size:12px;color:#666;">${b[1]}</div></div>`).join('')}<button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  profile: `<div class="modal-title">Profile & Settings</div><div class="modal-sub">Manage your account preferences.</div>${[['Personal Information','Update address, email, phone'],['Security Settings','Password, 2FA, Face ID'],['Notification Preferences','Alerts and messages'],['Privacy Settings','Data and sharing'],['Accessibility','Display and font options']].map(s=>`<div style="padding:13px 0;border-bottom:1px solid #eee;cursor:pointer;" onclick="showToast('Opening: ${s[0]}')"><div style="font-size:14px;font-weight:600;">${s[0]} <span style="float:right;color:#aaa;">›</span></div><div style="font-size:12px;color:#666;margin-top:2px;">${s[1]}</div></div>`).join('')}<button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  security: `<div class="modal-title">Security Center</div><div class="modal-sub">Keep your account safe.</div><div style="background:#e6f4ea;border-radius:8px;padding:14px;margin-bottom:16px;display:flex;gap:10px;align-items:center;"><span style="font-size:24px;">🛡️</span><div><div style="font-size:14px;font-weight:700;color:#2e7d32;">Account Secure</div><div style="font-size:12px;color:#666;">No suspicious activity detected</div></div></div>${[['Two-Factor Authentication','Enabled ✓'],['Face ID / Touch ID','Enabled ✓'],['Recent Login Activity','View history'],['Trusted Devices','Manage devices']].map(s=>`<div style="padding:12px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;cursor:pointer;" onclick="showToast('${s[0]}')"><span style="font-size:14px;font-weight:600;">${s[0]}</span><span style="font-size:13px;color:${s[1].includes('✓')?'#2e7d32':'var(--blue)'};">${s[1]}</span></div>`).join('')}<button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  assistant: `<div class="modal-title">How can we help?</div><div class="modal-sub">Choose a topic or type your question.</div>${['Check my balance','Recent transactions','Report lost card','Make a payment','Find a branch','Speak to an agent'].map(t=>`<div style="padding:12px;background:#f8f8f8;border-radius:8px;margin-bottom:8px;font-size:14px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;" onclick="closeModal();showToast('${t}')">${t}<span style="color:#aaa;">›</span></div>`).join('')}<button class="modal-close" style="margin-top:4px;" onclick="closeModal()">Close</button>`,
+  'rewards-drawer': `<div class="modal-title">Preferred Rewards</div><div class="modal-sub">Platinum Honors Member</div><div class="success-detail">${[['Points Balance','48,200'],['Cash Back Earned','$1,240.50'],['Next Tier','Diamond at 100k pts'],['Points to Next Tier','51,800']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-confirm" onclick="closeModal();showToast('Redirecting to Rewards Center')">View All Rewards</button><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'more-options': `<div class="modal-title">Account Options</div>${['Account Details','Alerts for this Account','Dispute a Transaction','Download Transactions','Close Account'].map(o=>`<div style="padding:14px 0;border-bottom:1px solid #eee;font-size:14px;font-weight:600;cursor:pointer;" onclick="closeModal();showToast('${o}')">${o} <span style="float:right;color:#aaa;">›</span></div>`).join('')}<button class="modal-close" style="margin-top:12px;" onclick="closeModal()">Close</button>`,
+  'tx-detail-grocery':`<div class="modal-title">Whole Foods Market</div><div class="success-detail">${[['Date','Jan 3, 2025'],['Amount','-$87.43'],['Category','Groceries'],['Account','Checking - 3432'],['Status','Posted'],['Reference','TXN202501030001']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-confirm" onclick="closeModal();showToast('Dispute submitted')">Dispute Transaction</button><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'tx-detail-payroll':`<div class="modal-title">ACH Deposit – Payroll</div><div class="success-detail">${[['Date','Jan 2, 2025'],['Amount','+$4,200.00'],['Category','Income'],['Account','Checking - 3432'],['Status','Posted'],['Reference','ACH202501020001']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'tx-zelle':`<div class="modal-title">Zelle – Mike Johnson</div><div class="success-detail">${[['Date','Jan 1, 2025'],['Amount','-$250.00'],['Recipient','Mike Johnson'],['Account','Checking - 3432'],['Status','Delivered'],['Memo','January rent split']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'tx-amazon':`<div class="modal-title">Amazon Business</div><div class="success-detail">${[['Date','Dec 31, 2024'],['Amount','-$342.18'],['Category','Shopping'],['Account','Checking - 3432'],['Status','Posted']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-confirm" onclick="closeModal();showToast('Dispute submitted')">Dispute Transaction</button><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'tx-atm':`<div class="modal-title">ATM Withdrawal</div><div class="success-detail">${[['Date','Dec 30, 2024'],['Amount','-$200.00'],['Location','BofA ATM – Maitama'],['Account','Checking - 3432'],['Status','Posted']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'tx-transfer':`<div class="modal-title">Transfer from Savings</div><div class="success-detail">${[['Date','Dec 28, 2024'],['Amount','+$1,000.00'],['From','Savings - 0193'],['To','Checking - 3432'],['Status','Completed']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'tx-starbucks':`<div class="modal-title">Starbucks</div><div class="success-detail">${[['Date','Dec 27, 2024'],['Amount','-$6.75'],['Category','Food & Drink'],['Account','Checking - 3432'],['Status','Posted']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-confirm" onclick="closeModal();showToast('Dispute submitted')">Dispute Transaction</button><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'tx-client':`<div class="modal-title">Client Payment – ACH</div><div class="success-detail">${[['Date','Dec 26, 2024'],['Amount','+$12,500.00'],['From','Client – Apex Corp'],['Account','Checking - 3432'],['Status','Posted']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'tx-office':`<div class="modal-title">Office Depot</div><div class="success-detail">${[['Date','Dec 24, 2024'],['Amount','-$156.90'],['Category','Business Supplies'],['Account','Checking - 3432'],['Status','Posted']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-confirm" onclick="closeModal();showToast('Dispute submitted')">Dispute Transaction</button><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'tx-detail-1':`<div class="modal-title">Zelle – Mike Johnson</div><div class="success-detail">${[['Date','Today, 2:41 PM'],['Amount','-$250.00'],['To','Mike Johnson'],['Method','Zelle®'],['Status','Delivered']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'tx-detail-2':`<div class="modal-title">Zelle – Sarah Anderson</div><div class="success-detail">${[['Date','Yesterday'],['Amount','+$125.00'],['From','Sarah Anderson'],['Method','Zelle®'],['Status','Received']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'tx-detail-3':`<div class="modal-title">Transfer to Savings</div><div class="success-detail">${[['Date','Dec 28'],['Amount','-$1,000.00'],['To','Savings - 0193'],['From','Checking - 3432'],['Status','Completed']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'tx-detail-4':`<div class="modal-title">Zelle – David Liu</div><div class="success-detail">${[['Date','Dec 25'],['Amount','+$85.00'],['From','David Liu'],['Method','Zelle®'],['Status','Received']].map(r=>`<div class="success-detail-row"><span class="key">${r[0]}</span><span class="val">${r[1]}</span></div>`).join('')}</div><button class="modal-close" onclick="closeModal()">Close</button>`,
+  'zelle-send':`<div class="modal-title">Send Money</div><div class="form-field" style="margin-bottom:12px;"><label>Send To</label><input type="text" placeholder="Name, email, or phone"/></div><div class="form-field" style="margin-bottom:12px;"><label>Amount</label><input type="number" placeholder="$0.00"/></div><div class="form-field" style="margin-bottom:12px;"><label>Memo (optional)</label><input type="text" placeholder="What's it for?"/></div><button class="modal-confirm" onclick="closeModal();showToast('Zelle payment sent!')">Send Money</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  'zelle-request':`<div class="modal-title">Request Money</div><div class="form-field" style="margin-bottom:12px;"><label>Request From</label><input type="text" placeholder="Name, email, or phone"/></div><div class="form-field" style="margin-bottom:12px;"><label>Amount</label><input type="number" placeholder="$0.00"/></div><div class="form-field" style="margin-bottom:12px;"><label>Memo (optional)</label><input type="text" placeholder="What's it for?"/></div><button class="modal-confirm" onclick="closeModal();showToast('Request sent!')">Send Request</button><button class="modal-close" onclick="closeModal()">Cancel</button>`,
+  msg1:`<div class="modal-title">Your statement is ready</div><div class="modal-sub">From: Bank of America · Today</div><p style="font-size:14px;color:#444;line-height:1.7;">Your December 2024 statement for Business Adv Checking Account ending in 3432 is now available. You can view and download your statement in the Statements section.</p><button class="modal-confirm" onclick="closeModal();showModal('statements')">View Statement</button><button class="modal-close" onclick="closeModal()">Close</button>`,
+  msg2:`<div class="modal-title">New Sign-In Detected</div><div class="modal-sub" style="color:#e31837;font-weight:600;">Security Alert</div><p style="font-size:14px;color:#444;line-height:1.7;margin-bottom:12px;">A new sign-in to your account was detected from iPhone in Abuja, Nigeria on Jan 3, 2025 at 10:44 AM.</p><p style="font-size:14px;color:#444;line-height:1.7;">If this was you, no action is needed. If you don't recognize this activity, please contact us immediately.</p><button class="modal-confirm" onclick="closeModal();showToast('Connecting to security team…')">This Wasn't Me</button><button class="modal-close" onclick="closeModal()">This Was Me</button>`,
+  msg3:`<div class="modal-title">You've Earned Bonus Points!</div><div class="modal-sub">From: Preferred Rewards · Dec 30</div><p style="font-size:14px;color:#444;line-height:1.7;">Congratulations! You've earned 2,400 bonus points this month for your business spending. Your current balance is <strong>48,200 points</strong>.</p><button class="modal-confirm" onclick="closeModal();showModal('rewards-dash')">View My Rewards</button><button class="modal-close" onclick="closeModal()">Close</button>`,
+  msg4:`<div class="modal-title">Payment Received</div><div class="modal-sub">From: Bank of America · Dec 28</div><p style="font-size:14px;color:#444;line-height:1.7;">A payment of <strong>$12,500.00</strong> was received and deposited into your Business Adv Checking Account ending in 3432 on December 28, 2024.</p><button class="modal-close" onclick="closeModal()">Close</button>`,
+  msg5:`<div class="modal-title">Transaction Approved</div><div class="modal-sub">From: Fraud Prevention · Dec 27</div><p style="font-size:14px;color:#444;line-height:1.7;">Your transaction of $342.18 at <strong>Amazon Business</strong> on December 27, 2024 was approved. If you don't recognize this transaction, please report it.</p><button class="modal-confirm" onclick="closeModal();showModal('report-fraud')">Report Issue</button><button class="modal-close" onclick="closeModal()">Close</button>`,
+  msg6:`<div class="modal-title">Special Offer For You</div><div class="modal-sub">From: BofA Offers · Dec 26</div><p style="font-size:14px;color:#444;line-height:1.7;">As a Preferred Rewards Platinum member, you've been pre-selected for a <strong>0% APR balance transfer</strong> offer on your Cash Rewards Card for 18 months.</p><button class="modal-confirm" onclick="closeModal();showToast('Redirecting to offer details…')">View Offer</button><button class="modal-close" onclick="closeModal()">Dismiss</button>`,
+};
+
+function showModal(id) {
+  const overlay = document.getElementById('modal-overlay');
+  const content = document.getElementById('modal-content');
+  const sheet = document.getElementById('modal-sheet');
+  const html = modalContents[id] || `<div class="modal-title">Coming Soon</div><div class="modal-sub">This feature is not yet available.</div><button class="modal-close" onclick="closeModal()">Close</button>`;
+  content.innerHTML = html;
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => { overlay.classList.add('open'); sheet.style.transform = 'translateY(0)'; });
+}
+function closeModal(e) {
+  if(e && e.target !== document.getElementById('modal-overlay')) return;
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.remove('open');
+  setTimeout(() => { overlay.style.display = 'none'; }, 350);
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg) {
+  clearTimeout(toastTimer);
+  const el = document.getElementById('toast-el');
+  el.textContent = msg;
+  el.classList.add('show');
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+// ── INIT ──
+document.getElementById('transfer-date').valueAsDate = new Date();
+
+// ════════════════════════════
+//  ADMIN PORTAL
+// ════════════════════════════
+const ADMIN_CREDS = { user: 'admin', pass: 'Admin@1234' };
+let adminLogoTaps = 0, adminLogoTimer = null;
+
+// Secret trigger: tap logo 5 times quickly
+function adminLogoTap() {
+  adminLogoTaps++;
+  clearTimeout(adminLogoTimer);
+  adminLogoTimer = setTimeout(() => { adminLogoTaps = 0; }, 1800);
+  if (adminLogoTaps >= 5) {
+    adminLogoTaps = 0;
+    openAdminPortal();
+  }
+}
+
+function openAdminPortal() {
+  const portal = document.getElementById('admin-portal');
+  portal.style.display = 'flex';
+  document.getElementById('admin-login-screen').style.display = 'flex';
+  document.getElementById('admin-dashboard').style.display = 'none';
+  document.getElementById('admin-user-input').value = '';
+  document.getElementById('admin-pass-input').value = '';
+  document.getElementById('admin-error-msg').textContent = '';
+  setTimeout(() => document.getElementById('admin-user-input').focus(), 100);
+}
+
+function closeAdminPortal() {
+  document.getElementById('admin-portal').style.display = 'none';
+}
+
+function doAdminLogin() {
+  const u = document.getElementById('admin-user-input').value.trim();
+  const p = document.getElementById('admin-pass-input').value;
+  if (u === ADMIN_CREDS.user && p === ADMIN_CREDS.pass) {
+    document.getElementById('admin-login-screen').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = 'flex';
+    loadAdminFields();
+  } else {
+    const errEl = document.getElementById('admin-error-msg');
+    errEl.textContent = 'Invalid credentials. Access denied.';
+    document.getElementById('admin-pass-input').value = '';
+    document.getElementById('admin-pass-input').focus();
+    setTimeout(() => { errEl.textContent = ''; }, 3000);
+  }
+}
+
+function setAdminTab(tab, btn) {
+  document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('admin-panel-' + tab).classList.add('on');
+}
+
+// ── LOAD CURRENT VALUES INTO ADMIN FIELDS ──
+function loadAdminFields() {
+  // Profile
+  document.getElementById('ap-fullname').value = document.querySelector('.drawer-greeting')?.textContent || 'James Okafor';
+  document.getElementById('ap-bizname').value = document.querySelector('.biz-name')?.textContent || 'Apex Ventures LLC';
+  document.getElementById('ap-greeting').value = document.querySelector('.drawer-greeting')?.textContent || 'Good morning, James';
+  // Balances
+  const bal = document.getElementById('adh-bal')?.textContent?.replace(/[$,]/g,'') || '57213.00';
+  document.getElementById('ab-checking').value = bal;
+  document.getElementById('ab-checking-num').value = '3432';
+  document.getElementById('ab-savings').value = '24500.00';
+  document.getElementById('ab-savings-num').value = '0193';
+  document.getElementById('ab-card').value = '3240.18';
+  // Credentials — show current username, clear password fields
+  document.getElementById('ac-current-user').value = appCreds.user;
+  document.getElementById('ac-new-user').value = '';
+  document.getElementById('ac-current-pass').value = '';
+  document.getElementById('ac-new-pass').value = '';
+  document.getElementById('ac-confirm-pass').value = '';
+  // Transactions
+  renderAdminTxList();
+}
+
+// ── PROFILE SAVE ──
+function saveProfile() {
+  const name = document.getElementById('ap-fullname').value.trim();
+  const biz = document.getElementById('ap-bizname').value.trim();
+  const greet = document.getElementById('ap-greeting').value.trim();
+  if (name) {
+    document.querySelectorAll('.drawer-name, #drawer-name').forEach(el => el.textContent = name);
+    const drawerName = document.querySelector('.drawer-greeting');
+    if (drawerName && greet) drawerName.textContent = greet;
+    const drawerSub = document.querySelector('.drawer-sub');
+    if (drawerSub) drawerSub.textContent = name;
+  }
+  if (biz) document.querySelectorAll('.biz-name').forEach(el => el.textContent = biz);
+  if (greet) { const dg = document.querySelector('.drawer-greeting'); if(dg) dg.textContent = greet; }
+  const msg = document.getElementById('profile-msg');
+  msg.textContent = '✓ Profile updated successfully';
+  setTimeout(() => msg.textContent = '', 2500);
+}
+
+// ── BALANCES SAVE ──
+function fmtBal(v) {
+  const n = parseFloat(v.replace(/,/g,''));
+  if (isNaN(n)) return v;
+  return '$' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function saveBalances() {
+  const chk = document.getElementById('ab-checking').value;
+  const chkNum = document.getElementById('ab-checking-num').value || '3432';
+  const sav = document.getElementById('ab-savings').value;
+  const savNum = document.getElementById('ab-savings-num').value || '0193';
+  const card = document.getElementById('ab-card').value;
+  const fmtChk = fmtBal(chk);
+  const fmtSav = fmtBal(sav);
+  const fmtCard = fmtBal(card);
+  // Update account detail header
+  const adhBal = document.getElementById('adh-bal');
+  if (adhBal) adhBal.textContent = fmtChk;
+  const adhAvail = document.getElementById('adh-avail');
+  if (adhAvail) adhAvail.textContent = 'Current Balance: ' + fmtChk;
+  const adhNum = document.getElementById('adh-num');
+  if (adhNum) adhNum.textContent = 'Account - ' + chkNum;
+  // Update all acct-amt elements that match checking/savings
+  const acctRows = document.querySelectorAll('.acct-row');
+  acctRows.forEach(row => {
+    const nameEl = row.querySelector('.acct-name');
+    const amtEl = row.querySelector('.acct-amt');
+    if (!nameEl || !amtEl) return;
+    if (nameEl.textContent.toLowerCase().includes('checking')) {
+      amtEl.textContent = fmtChk;
+      const sub = nameEl.nextElementSibling;
+      if(sub) sub.textContent = 'Account ending in ' + chkNum;
+    }
+    if (nameEl.textContent.toLowerCase().includes('savings')) {
+      amtEl.textContent = fmtSav;
+      const sub = nameEl.nextElementSibling;
+      if(sub) sub.textContent = 'Account ending in ' + savNum;
+    }
+    if (nameEl.textContent.toLowerCase().includes('cash rewards') || nameEl.textContent.toLowerCase().includes('card')) {
+      amtEl.textContent = fmtCard;
+    }
+  });
+  // Update net worth
+  const nwAmt = document.querySelector('.nw-amount');
+  if (nwAmt) {
+    const total = (parseFloat(chk.replace(/,/g,''))||0) + (parseFloat(sav.replace(/,/g,''))||0);
+    nwAmt.textContent = '$' + total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+  // Update dashboard balance card
+  document.querySelectorAll('.d-card').forEach(card_el => {
+    const lbl = card_el.querySelector('.d-label');
+    const val = card_el.querySelector('.d-value');
+    if(!lbl||!val) return;
+    if(lbl.textContent.toLowerCase().includes('checking')) val.textContent = fmtChk;
+    if(lbl.textContent.toLowerCase().includes('savings')) val.textContent = fmtSav;
+  });
+  const msg = document.getElementById('balances-msg');
+  msg.textContent = '✓ Balances updated successfully';
+  setTimeout(() => msg.textContent = '', 2500);
+}
+
+// ── TRANSACTIONS ──
+// Build editable transaction data from the DOM
+let adminTxData = [];
+
+function getTxDataFromDOM() {
+  adminTxData = [];
+  const rows = document.querySelectorAll('#tx-list .tx-row');
+  rows.forEach((row, i) => {
+    const name = row.querySelector('.tx-name')?.textContent || '';
+    const date = row.querySelector('.tx-date')?.textContent || '';
+    const amtEl = row.querySelector('.tx-amt');
+    const amt = amtEl?.textContent || '';
+    const type = amtEl?.classList.contains('credit') ? 'credit' : 'debit';
+    const bal = row.querySelector('.tx-bal')?.textContent?.replace('Bal: ','') || '';
+    const ico = row.querySelector('.tx-ico')?.textContent || '💳';
+    adminTxData.push({ id: 'tx_' + i, name, date, amt, type, bal, ico });
+  });
+}
+
+function renderAdminTxList() {
+  getTxDataFromDOM();
+  const list = document.getElementById('admin-tx-list');
+  list.innerHTML = '';
+  adminTxData.forEach((tx, i) => {
+    list.innerHTML += `
+    <div class="admin-tx-item" id="atx-${i}">
+      <div class="admin-tx-header">
+        <span class="admin-tx-label">#${i+1} ${tx.name || 'Transaction'}</span>
+        <button class="admin-tx-del" onclick="deleteAdminTx(${i})">✕ Remove</button>
+      </div>
+      <div class="admin-tx-fields">
+        <div class="admin-tx-field"><label>Name</label><input type="text" value="${tx.name}" oninput="adminTxData[${i}].name=this.value;this.closest('.admin-tx-item').querySelector('.admin-tx-label').textContent='#${i+1} '+this.value"/></div>
+        <div class="admin-tx-field"><label>Date</label><input type="text" value="${tx.date}" oninput="adminTxData[${i}].date=this.value"/></div>
+        <div class="admin-tx-field"><label>Amount</label><input type="text" value="${tx.amt}" oninput="adminTxData[${i}].amt=this.value"/></div>
+        <div class="admin-tx-field"><label>Type</label><select onchange="adminTxData[${i}].type=this.value"><option value="debit" ${tx.type==='debit'?'selected':''}>Debit (–)</option><option value="credit" ${tx.type==='credit'?'selected':''}>Credit (+)</option></select></div>
+        <div class="admin-tx-field"><label>Balance After</label><input type="text" value="${tx.bal}" oninput="adminTxData[${i}].bal=this.value"/></div>
+        <div class="admin-tx-field"><label>Icon / Emoji</label><input type="text" value="${tx.ico}" oninput="adminTxData[${i}].ico=this.value"/></div>
+      </div>
+    </div>`;
+  });
+}
+
+function deleteAdminTx(i) {
+  adminTxData.splice(i, 1);
+  const list = document.getElementById('admin-tx-list');
+  list.innerHTML = '';
+  adminTxData.forEach((tx, idx) => {
+    list.innerHTML += `
+    <div class="admin-tx-item" id="atx-${idx}">
+      <div class="admin-tx-header">
+        <span class="admin-tx-label">#${idx+1} ${tx.name||'Transaction'}</span>
+        <button class="admin-tx-del" onclick="deleteAdminTx(${idx})">✕ Remove</button>
+      </div>
+      <div class="admin-tx-fields">
+        <div class="admin-tx-field"><label>Name</label><input type="text" value="${tx.name}" oninput="adminTxData[${idx}].name=this.value"/></div>
+        <div class="admin-tx-field"><label>Date</label><input type="text" value="${tx.date}" oninput="adminTxData[${idx}].date=this.value"/></div>
+        <div class="admin-tx-field"><label>Amount</label><input type="text" value="${tx.amt}" oninput="adminTxData[${idx}].amt=this.value"/></div>
+        <div class="admin-tx-field"><label>Type</label><select onchange="adminTxData[${idx}].type=this.value"><option value="debit" ${tx.type==='debit'?'selected':''}>Debit (–)</option><option value="credit" ${tx.type==='credit'?'selected':''}>Credit (+)</option></select></div>
+        <div class="admin-tx-field"><label>Balance After</label><input type="text" value="${tx.bal}" oninput="adminTxData[${idx}].bal=this.value"/></div>
+        <div class="admin-tx-field"><label>Icon / Emoji</label><input type="text" value="${tx.ico}" oninput="adminTxData[${idx}].ico=this.value"/></div>
+      </div>
+    </div>`;
+  });
+}
+
+function addAdminTx() {
+  adminTxData.unshift({ name:'New Transaction', date:'Jan 1, 2025', amt:'-$0.00', type:'debit', bal:'$0.00', ico:'💳' });
+  renderAdminTxList();
+  document.getElementById('admin-panel-transactions').scrollTop = 0;
+}
+
+// ── CREDENTIALS SAVE ──
+function saveCredentials() {
+  const msg = document.getElementById('creds-msg');
+  const currentUser = document.getElementById('ac-current-user').value.trim();
+  const newUser = document.getElementById('ac-new-user').value.trim();
+  const currentPass = document.getElementById('ac-current-pass').value;
+  const newPass = document.getElementById('ac-new-pass').value;
+  const confirmPass = document.getElementById('ac-confirm-pass').value;
+
+  let changed = false;
+
+  // Update username if provided
+  if (newUser) {
+    if (currentUser !== appCreds.user) {
+      msg.style.color = '#e31837';
+      msg.textContent = '✗ Current username is incorrect.';
+      setTimeout(() => { msg.textContent = ''; msg.style.color = '#4caf50'; }, 3000);
+      return;
+    }
+    appCreds.user = newUser;
+    document.getElementById('ac-current-user').value = newUser;
+    document.getElementById('ac-new-user').value = '';
+    changed = true;
+  }
+
+  // Update password if provided
+  if (newPass || currentPass) {
+    if (currentPass !== appCreds.pass) {
+      msg.style.color = '#e31837';
+      msg.textContent = '✗ Current password is incorrect.';
+      setTimeout(() => { msg.textContent = ''; msg.style.color = '#4caf50'; }, 3000);
+      return;
+    }
+    if (!newPass) {
+      msg.style.color = '#e31837';
+      msg.textContent = '✗ Please enter a new password.';
+      setTimeout(() => { msg.textContent = ''; msg.style.color = '#4caf50'; }, 3000);
+      return;
+    }
+    if (newPass !== confirmPass) {
+      msg.style.color = '#e31837';
+      msg.textContent = '✗ New passwords do not match.';
+      setTimeout(() => { msg.textContent = ''; msg.style.color = '#4caf50'; }, 3000);
+      return;
+    }
+    appCreds.pass = newPass;
+    document.getElementById('ac-current-pass').value = '';
+    document.getElementById('ac-new-pass').value = '';
+    document.getElementById('ac-confirm-pass').value = '';
+    changed = true;
+  }
+
+  if (!changed) {
+    msg.style.color = '#e31837';
+    msg.textContent = 'No changes made.';
+    setTimeout(() => { msg.textContent = ''; msg.style.color = '#4caf50'; }, 2500);
+    return;
+  }
+
+  msg.style.color = '#4caf50';
+  msg.textContent = '✓ Login credentials updated successfully';
+  setTimeout(() => msg.textContent = '', 3000);
+}
+
+
+  'debit': 'background:#fde8eb',
+  'credit': 'background:#e6f4ea'
+};
+
+function saveTxList() {
+  const txList = document.getElementById('tx-list');
+  const monthHeader = txList.querySelector('.tx-month');
+  const spacer = txList.querySelector('div[style*="height:20px"]');
+  // Remove all tx-rows
+  txList.querySelectorAll('.tx-row').forEach(r => r.remove());
+  txList.querySelectorAll('.tx-month').forEach(r => r.remove());
+  // Rebuild — insert before spacer
+  const rows = adminTxData.map(tx => {
+    const div = document.createElement('div');
+    div.className = 'tx-row';
+    div.innerHTML = `<div class="tx-ico" style="${tx.type==='credit'?'background:#e6f4ea':'background:#fde8eb'}">${tx.ico}</div><div class="tx-desc"><div class="tx-name">${tx.name}</div><div class="tx-date">${tx.date}</div></div><div class="tx-right"><div class="tx-amt ${tx.type}">${tx.amt}</div><div class="tx-bal">Bal: ${tx.bal}</div></div>`;
+    div.onclick = () => showToast(tx.name);
+    return div;
+  });
+  // Group by month label (simple: just add one header)
+  if(adminTxData.length > 0) {
+    // Group transactions into months
+    const months = {};
+    adminTxData.forEach((tx, i) => {
+      const parts = tx.date.split(' ');
+      const key = parts.length >= 2 ? parts[0] + ' ' + parts[parts.length-1] : tx.date;
+      if (!months[key]) months[key] = [];
+      months[key].push(i);
+    });
+    let lastMonth = '';
+    rows.forEach((row, i) => {
+      const tx = adminTxData[i];
+      const parts = tx.date.split(' ');
+      const key = parts.length >= 2 ? parts[0] + ' ' + parts[parts.length-1] : tx.date;
+      if (key !== lastMonth) {
+        const hdr = document.createElement('div');
+        hdr.className = 'tx-month';
+        hdr.textContent = key;
+        txList.insertBefore(hdr, spacer);
+        lastMonth = key;
+      }
+      txList.insertBefore(row, spacer);
+    });
+  }
+  const msg = document.getElementById('tx-msg');
+  msg.textContent = '✓ Transactions applied to app';
+  setTimeout(() => msg.textContent = '', 2500);
+}
+</script>
+</body>
+</html>
